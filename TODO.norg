@@ -1,0 +1,59 @@
+* Now
+  - ( ) WASM basic linear memory
+  - ( ) Single module request+metadata/response+metadata apis
+  - ( ) Core message bus
+  - ( ) Wrapper for rust
+  - ( ) Wrapper for JS
+  - ( ) Wrapper for C
+  - ( ) Benchmarking
+  - ( ) Tests
+  - ( ) Network layer
+
+* Later
+  - ( ) milliservice.yml
+  - ( ) Multithreading
+  - ( ) Epoch based execution timeout
+  - ( ) Environment labels - production/development
+  - ( ) Versioning
+  - ( ) Allow multiple handlers in one library (use `on_request` by default)
+  - ( ) Wrapper for Assemblyscript
+  - ( ) Wrapper for Go
+  - ( ) Wrapper for haskell
+  - ( ) Wrapper for ocaml
+  - ( ) Multiply core instances or namespacing (for scoping)?
+
+* Links
+  - {https://docs.wasmtime.dev/examples-rust-memory.html}
+  - {https://docs.rs/wasmtime/12.0.1/wasmtime/struct.Memory.html#method.data}
+  - {https://docs.rs/wasmtime-wasi/latest/wasmtime_wasi/index.html}
+  - {https://github.com/pmalmgren/wasi-data-sharing/blob/shared-linear-memory-demo/examples/wasi/main.rs}
+  - {https://www.fermyon.com/}
+  - JS: {https://github.com/bytecodealliance/javy}
+  - Go: {https://github.com/stealthrocket/wasi-go}
+  - Ocaml: {https://github.com/ocsigen/js_of_ocaml}
+
+* Pros
+** vs monolith
+   - Ease of deployment (faster shipping)
+   - Programming language and technology agnostic
+   - Easy versioning
+   - Deployment has 0 downtime without scaling
+   - Clear boundaries of ownership of services in teams
+   - Security: Sandboxed environment for modules
+** vs microservices
+   - Easy versioning
+   - Simple service discoverability
+   - Non-flat architecture, can be scoped
+   - You own the server
+   - Lower up-front costs (dedicated instance)
+   - Easy integration testing
+   - Lower complexity
+   - No network hop for cross-service communication
+
+* Cons
+** vs monolith
+   - ?
+** vs microservices
+   - no fault isolation
+   - not independently scalable
+
