@@ -2,6 +2,7 @@ use std::mem::size_of;
 
 extern "C" {
   fn send_response(data_ptr: i32);
+  fn get_metadata(key_ptr: i32) -> i32;
 }
 
 fn get_mem_representation(ptr: i32) -> (i32, usize) {
@@ -42,6 +43,14 @@ fn get_ptr_to(data: Vec<u8>) -> i32 {
 extern "C" fn on_request(input_ptr: i32) {
   let str: String = String::from_utf8(read_from_ptr(input_ptr)).expect("input read error");
   dbg!(str);
+
+  unsafe {
+    let key_ptr = get_ptr_to("X-Authentication".into());
+    let value_ptr = get_metadata(key_ptr);
+    let metadata_value =
+      String::from_utf8(read_from_ptr(value_ptr)).expect("Cant read value of key");
+    dbg!(metadata_value);
+  }
 
   unsafe {
     let ptr = get_ptr_to("FROM WASM".into());

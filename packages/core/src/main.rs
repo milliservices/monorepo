@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use anyhow::Result;
 
 pub mod service;
@@ -13,6 +15,14 @@ async fn main() -> Result<()> {
   let mut instance = service_module.instantiate().await?;
 
   let pointer = instance.encode_ptr("Hello world".into())?;
+  instance.update_metadata(HashMap::from([
+    ("@method".to_string(), "POST".to_string()),
+    ("@path".to_string(), "/some/path".to_string()),
+    (
+      "X-Authentication".to_string(),
+      "some-auth-key-over-here".to_string(),
+    ),
+  ]));
   instance.invoke(pointer).await?;
 
   Ok(())

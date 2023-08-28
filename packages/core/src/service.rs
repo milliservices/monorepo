@@ -1,5 +1,5 @@
 use anyhow::Result;
-use std::collections::HashMap;
+use std::{collections::HashMap, thread::panicking};
 use wasmtime::*;
 use wasmtime_wasi::sync::WasiCtxBuilder;
 
@@ -31,6 +31,31 @@ impl ServiceModule {
           let _ = dbg!(String::from_utf8(buffer));
         }
         Ok(())
+      },
+    )?;
+
+    linker.func_wrap(
+      "env",
+      "get_metadata",
+      |mut caller: Caller<'_, ServiceStore>, ptr: i32| -> Result<i32> {
+        if let Some(Extern::Memory(memory)) = caller.get_export("memory") {
+          let key_buf = ServiceStore::read_from_memory(&caller.as_context(), memory, ptr)?;
+          let key = String::from_utf8(key_buf)?;
+          let metadata = &caller.data().metadata;
+
+          let value: Vec<u8> = metadata
+            .get(&key)
+            .map(|s| s.to_owned())
+            .unwrap_or_default()
+            .into();
+
+          let value_ptr =
+            ServiceStore::write_to_memory(&mut caller.as_context_mut(), memory, value)?;
+
+          Ok(value_ptr)
+        } else {
+          panic!("fuck");
+        }
       },
     )?;
 
@@ -92,5 +117,10 @@ impl ServiceInstance {
 
     let mut ctx = self.store.as_context_mut();
     ServiceStore::write_to_memory(&mut ctx, memory, data)
+  }
+
+  pub fn update_metadata(&mut self, map: HashMap<String, String>) {
+    let data = self.store.data_mut();
+    data.metadata.extend(map)
   }
 }
