@@ -1,5 +1,5 @@
 * Now
-  - ( ) WASM basic linear memory example
+  - (x) WASM basic linear memory example
   - ( ) Single module request+metadata/response+metadata apis
   - ( ) Core message bus
   - ( ) Wrapper for rust
