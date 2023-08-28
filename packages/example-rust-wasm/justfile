@@ -1,0 +1,9 @@
+run:
+  cargo run
+
+watch:
+  cargo watch --exec build
+
+build:
+  cargo build
+
