@@ -90,7 +90,7 @@ impl ServiceModule {
     Ok(value_ptr)
   }
 
-  pub async fn instantiate(self, request_handler_name: &str) -> Result<ServiceInstance> {
+  pub async fn instantiate(&self, request_handler_name: &str) -> Result<ServiceInstance> {
     let inst = ServiceInstance::new(self, request_handler_name).await?;
     Ok(inst)
   }
@@ -103,7 +103,7 @@ pub struct ServiceInstance {
 }
 
 impl ServiceInstance {
-  pub async fn new(service: ServiceModule, request_handler_name: &str) -> Result<Self> {
+  pub async fn new(service: &ServiceModule, request_handler_name: &str) -> Result<Self> {
     let wasi_ctx = WasiCtxBuilder::new().inherit_stdio().build();
     let mut store = Store::new(
       &service.engine,
