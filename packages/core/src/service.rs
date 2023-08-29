@@ -90,19 +90,20 @@ impl ServiceModule {
     Ok(value_ptr)
   }
 
-  pub async fn instantiate(self) -> Result<ServiceInstance> {
-    let inst = ServiceInstance::new(self).await?;
+  pub async fn instantiate(self, request_handler_name: &str) -> Result<ServiceInstance> {
+    let inst = ServiceInstance::new(self, request_handler_name).await?;
     Ok(inst)
   }
 }
 
 pub struct ServiceInstance {
+  request_handler_name: String,
   instance: Instance,
   store: Store<ServiceStore>,
 }
 
 impl ServiceInstance {
-  pub async fn new(service: ServiceModule) -> Result<Self> {
+  pub async fn new(service: ServiceModule, request_handler_name: &str) -> Result<Self> {
     let wasi_ctx = WasiCtxBuilder::new().inherit_stdio().build();
     let mut store = Store::new(
       &service.engine,
@@ -118,13 +119,17 @@ impl ServiceInstance {
 
     let instance = service.instance_pre.instantiate_async(&mut store).await?;
 
-    Ok(ServiceInstance { instance, store })
+    Ok(ServiceInstance {
+      request_handler_name: request_handler_name.to_string(),
+      instance,
+      store,
+    })
   }
 
   pub async fn invoke(&mut self, ptr: i32) -> Result<()> {
     let on_request = self
       .instance
-      .get_typed_func::<i32, ()>(&mut self.store, "on_request")?;
+      .get_typed_func::<i32, ()>(&mut self.store, &self.request_handler_name)?;
 
     on_request.call_async(&mut self.store, ptr).await?;
 

@@ -12,7 +12,7 @@ async fn main() -> Result<()> {
   let service_module =
     ServiceModule::new("./target/wasm32-wasi/debug/example_rust_wasm.wasm").await?;
 
-  let mut instance = service_module.instantiate().await?;
+  let mut instance = service_module.instantiate("on_request").await?;
 
   let pointer = instance.write_to_memory("Hello world".into())?;
   instance.update_metadata(HashMap::from([

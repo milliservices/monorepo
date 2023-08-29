@@ -1,7 +1,7 @@
 * Now
   - (x) WASM basic linear memory example
   - (x) Single module request+metadata/response+metadata apis
-  - ( ) Response metadata
+  - (x) Response metadata
   - ( ) Response buffer
   - ( ) Multi service messaging
   - ( ) Wrapper for rust (proc macro + lib)
@@ -16,6 +16,8 @@
   - ( ) Epoch based execution timeout
   - ( ) Environment labels - production/development
   - ( ) Versioning
+  - ( ) Forward env variables
+  - ( ) Scoped fs access
   - ( ) Multiple request handlers (use `on_request` by default) (same module)
   - ( ) Multiple core instances or namespacing (for scoping)
   - ( ) Wrapper for Assemblyscript
