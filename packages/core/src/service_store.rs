@@ -6,6 +6,7 @@ use wasmtime_wasi::WasiCtx;
 pub struct ServiceStore {
   pub wasi_ctx: WasiCtx,
   pub metadata: HashMap<String, String>,
+  pub response_metadata: HashMap<String, String>,
   pub pointer_offset: u32,
 }
 

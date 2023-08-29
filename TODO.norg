@@ -2,6 +2,7 @@
   - (x) WASM basic linear memory example
   - (x) Single module request+metadata/response+metadata apis
   - ( ) Response metadata
+  - ( ) Response buffer
   - ( ) Multi service messaging
   - ( ) Wrapper for rust (proc macro + lib)
   - ( ) Wrapper for JS (javy js lib?)

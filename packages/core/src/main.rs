@@ -22,5 +22,8 @@ async fn main() -> Result<()> {
   ]));
   instance.invoke(pointer).await?;
 
+  let response_metadata = instance.get_response_metadata();
+  dbg!(response_metadata);
+
   Ok(())
 }

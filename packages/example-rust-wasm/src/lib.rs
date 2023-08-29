@@ -3,7 +3,7 @@ use std::mem::size_of;
 extern "C" {
   fn send_response(data_ptr: i32);
   fn get_metadata(key_ptr: i32) -> i32;
-  // fn set_response_metadata(key_ptr: i32, value_ptr: i32);
+  fn set_response_metadata(key_ptr: i32, value_ptr: i32);
   // fn call_service(name_ptr: i32, data_ptr: i32, metadata??) -> i32;
 }
 
@@ -31,6 +31,7 @@ fn read_from_memory(ptr: i32) -> Vec<u8> {
 }
 
 fn write_to_memory(data: Vec<u8>) -> i32 {
+  // let data = data.to_owned();
   let data_len = data.len();
   let data_ptr = data.as_ptr() as i32;
 
@@ -38,7 +39,12 @@ fn write_to_memory(data: Vec<u8>) -> i32 {
   let mut ptr_len_buf: Vec<u8> = (data_len as u32).to_be_bytes().into();
   ptr_ptr_buf.append(&mut ptr_len_buf);
 
-  ptr_ptr_buf.as_ptr() as i32
+  let ptr_ptr = ptr_ptr_buf.as_ptr() as i32;
+
+  std::mem::forget(data);
+  std::mem::forget(ptr_ptr_buf);
+
+  ptr_ptr
 }
 
 #[no_mangle]
@@ -53,6 +59,16 @@ extern "C" fn on_request(input_ptr: i32) {
     let metadata_value =
       String::from_utf8(read_from_memory(value_ptr)).expect("Cant read value of key");
     dbg!(metadata_value);
+  }
+
+  unsafe {
+    let key_ptr = write_to_memory("Content-Type".into());
+    let value_ptr = write_to_memory("application/json".into());
+    set_response_metadata(key_ptr, value_ptr);
+
+    let key_ptr = write_to_memory("Server".into());
+    let value_ptr = write_to_memory("milliservices_rust".into());
+    set_response_metadata(key_ptr, value_ptr);
   }
 
   unsafe {
