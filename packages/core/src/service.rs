@@ -1,5 +1,5 @@
 use anyhow::Result;
-use std::{collections::HashMap, thread::panicking};
+use std::collections::HashMap;
 use wasmtime::*;
 use wasmtime_wasi::sync::WasiCtxBuilder;
 
@@ -22,42 +22,8 @@ impl ServiceModule {
     let mut linker: Linker<ServiceStore> = Linker::new(&engine);
     wasmtime_wasi::add_to_linker(&mut linker, |store: &mut ServiceStore| &mut store.wasi_ctx)?;
 
-    linker.func_wrap(
-      "env",
-      "send_response",
-      |mut caller: Caller<'_, ServiceStore>, ptr: i32| -> Result<()> {
-        if let Some(Extern::Memory(memory)) = caller.get_export("memory") {
-          let buffer = ServiceStore::read_from_memory(&caller.as_context(), memory, ptr)?;
-          let _ = dbg!(String::from_utf8(buffer));
-        }
-        Ok(())
-      },
-    )?;
-
-    linker.func_wrap(
-      "env",
-      "get_metadata",
-      |mut caller: Caller<'_, ServiceStore>, ptr: i32| -> Result<i32> {
-        if let Some(Extern::Memory(memory)) = caller.get_export("memory") {
-          let key_buf = ServiceStore::read_from_memory(&caller.as_context(), memory, ptr)?;
-          let key = String::from_utf8(key_buf)?;
-          let metadata = &caller.data().metadata;
-
-          let value: Vec<u8> = metadata
-            .get(&key)
-            .map(|s| s.to_owned())
-            .unwrap_or_default()
-            .into();
-
-          let value_ptr =
-            ServiceStore::write_to_memory(&mut caller.as_context_mut(), memory, value)?;
-
-          Ok(value_ptr)
-        } else {
-          panic!("fuck");
-        }
-      },
-    )?;
+    linker.func_wrap("env", "send_response", Self::cb_send_response)?;
+    linker.func_wrap("env", "get_metadata", Self::cb_get_metadata)?;
 
     let instance_pre = linker.instantiate_pre(&module)?;
 
@@ -67,6 +33,34 @@ impl ServiceModule {
       // linker,
       instance_pre,
     })
+  }
+
+  fn cb_send_response(mut caller: Caller<'_, ServiceStore>, ptr: i32) -> Result<()> {
+    if let Some(Extern::Memory(memory)) = caller.get_export("memory") {
+      let buffer = ServiceStore::read_from_memory(&caller.as_context(), memory, ptr)?;
+      let _ = dbg!(String::from_utf8(buffer));
+    }
+    Ok(())
+  }
+
+  fn cb_get_metadata(mut caller: Caller<'_, ServiceStore>, ptr: i32) -> Result<i32> {
+    if let Some(Extern::Memory(memory)) = caller.get_export("memory") {
+      let key_buf = ServiceStore::read_from_memory(&caller.as_context(), memory, ptr)?;
+      let key = String::from_utf8(key_buf)?;
+      let metadata = &caller.data().metadata;
+
+      let value: Vec<u8> = metadata
+        .get(&key)
+        .map(|s| s.to_owned())
+        .unwrap_or_default()
+        .into();
+
+      let value_ptr = ServiceStore::write_to_memory(&mut caller.as_context_mut(), memory, value)?;
+
+      Ok(value_ptr)
+    } else {
+      panic!("fuck");
+    }
   }
 
   pub async fn instantiate(self) -> Result<ServiceInstance> {
@@ -109,14 +103,13 @@ impl ServiceInstance {
     Ok(())
   }
 
-  pub fn encode_ptr(&mut self, data: Vec<u8>) -> Result<i32> {
+  pub fn write_to_memory(&mut self, data: Vec<u8>) -> Result<i32> {
     let memory = self
       .instance
       .get_memory(&mut self.store, "memory")
       .expect("No memory of anything");
 
-    let mut ctx = self.store.as_context_mut();
-    ServiceStore::write_to_memory(&mut ctx, memory, data)
+    ServiceStore::write_to_memory(&mut self.store.as_context_mut(), memory, data)
   }
 
   pub fn update_metadata(&mut self, map: HashMap<String, String>) {

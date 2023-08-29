@@ -1,26 +1,27 @@
 * Now
   - (x) WASM basic linear memory example
-  - ( ) Single module request+metadata/response+metadata apis
-  - ( ) Core message bus
-  - ( ) Wrapper for rust
-  - ( ) Wrapper for JS
-  - ( ) Wrapper for C
-  - ( ) Benchmarking
-  - ( ) Tests
+  - (x) Single module request+metadata/response+metadata apis
+  - ( ) Response metadata
+  - ( ) Multi service messaging
+  - ( ) Wrapper for rust (proc macro + lib)
+  - ( ) Wrapper for JS (javy js lib?)
+  - ( ) Wrapper for C (macro lib)
   - ( ) Network layer
+  - ( ) Tests
+  - ( ) Benchmarking
 
 * Later
-  - ( ) milliservice.yml
-  - ( ) Multithreading
+  - ( ) milliservice.yaml
   - ( ) Epoch based execution timeout
   - ( ) Environment labels - production/development
   - ( ) Versioning
-  - ( ) Allow multiple handlers in one library (use `on_request` by default)
+  - ( ) Multiple request handlers (use `on_request` by default) (same module)
+  - ( ) Multiple core instances or namespacing (for scoping)
   - ( ) Wrapper for Assemblyscript
   - ( ) Wrapper for Go
   - ( ) Wrapper for haskell
   - ( ) Wrapper for ocaml
-  - ( ) Multiply core instances or namespacing (for scoping)?
+  - ( ) Multithreading
 
 * Links
   - {https://docs.wasmtime.dev/examples-rust-memory.html}
