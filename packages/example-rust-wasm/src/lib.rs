@@ -54,8 +54,7 @@ extern "C" fn on_request(input_ptr: i32) {
   dbg!(input_str);
 
   unsafe {
-    let key_ptr = write_to_memory("X-Authentication".into());
-    let value_ptr = get_metadata(key_ptr);
+    let value_ptr = get_metadata(write_to_memory("X-Authentication".into()));
     let metadata_value =
       String::from_utf8(read_from_memory(value_ptr)).expect("Cant read value of key");
     dbg!(metadata_value);

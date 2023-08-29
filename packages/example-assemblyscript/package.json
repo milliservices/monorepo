@@ -1,0 +1,24 @@
+{
+  "name": "example-assemblyscript",
+  "version": "0.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node tests",
+    "build": "asc assembly/index.ts --target debug",
+    "start": "npx serve ."
+  },
+  "author": "",
+  "license": "MPL-2.0",
+  "devDependencies": {
+    "@assemblyscript/wasi-shim": "^0.1.0",
+    "assemblyscript": "^0.27.9"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./build/release.js",
+      "types": "./build/release.d.ts"
+    }
+  }
+}

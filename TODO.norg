@@ -1,14 +1,16 @@
 * Now
-  - (x) WASM basic linear memory example
-  - (x) Single module request+metadata/response+metadata apis
-  - (x) Response metadata
-  - ( ) Response buffer
+  - ( ) CPython example
+  - ( ) Haskell example
   - ( ) Multi service messaging
-  - ( ) Wrapper for rust (proc macro + lib)
-  - ( ) Wrapper for JS (javy js lib?)
-  - ( ) Wrapper for C (macro lib)
-  - ( ) Network layer
   - ( ) Tests
+  - ( ) Wrapper for rust (proc macro + lib)
+  - ( ) Network layer
+
+* Next
+  - ( ) Get assemblyscript example working?
+  - ( ) C example
+  - ( ) Wrapper for C (macro lib)
+  - ( ) Wrapper for Assemblyscript
   - ( ) Benchmarking
 
 * Later
@@ -21,11 +23,15 @@
   - ( ) Scoped fs access
   - ( ) Multiple request handlers (use `on_request` by default) (same module)
   - ( ) Multiple core instances or namespacing (for scoping)
-  - ( ) Wrapper for Assemblyscript
+  - ( ) Preloaded dynamically linked modules (to reduce wasm bundle size)?
   - ( ) Wrapper for Go
   - ( ) Wrapper for haskell
   - ( ) Wrapper for ocaml
   - ( ) Multithreading
+  - ( ) Keep an eye on wasm component model?
+
+* Shitpile
+  - (_) Wrapper for JS (javy js lib)
 
 * Links
   - {https://docs.wasmtime.dev/examples-rust-memory.html}
