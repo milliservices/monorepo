@@ -7,6 +7,7 @@ pub struct ServiceStore {
   pub wasi_ctx: WasiCtx,
   pub metadata: HashMap<String, String>,
   pub response_metadata: HashMap<String, String>,
+  pub response_data: Vec<u8>,
   pub pointer_offset: u32,
 }
 
@@ -19,7 +20,7 @@ impl ServiceStore {
     let store_data = store.data_mut();
     let data_ptr = store_data.pointer_offset;
 
-    // TODO: Cyclic incremenet, maybe?
+    // TODO: Cyclic increment back to 1 at end?
     store_data.pointer_offset += data.len() as u32;
 
     memory.write(store, data_ptr as usize, data.as_slice())?;

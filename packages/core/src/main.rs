@@ -22,8 +22,8 @@ async fn main() -> Result<()> {
   ]));
   instance.invoke(pointer).await?;
 
-  let response_metadata = instance.get_response_metadata();
-  dbg!(response_metadata);
+  dbg!(instance.get_response_metadata());
+  let _ = dbg!(String::from_utf8(instance.get_response_data().to_owned()));
 
   Ok(())
 }

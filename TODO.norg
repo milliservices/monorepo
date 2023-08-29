@@ -15,6 +15,7 @@
   - ( ) milliservice.yaml
   - ( ) Epoch based execution timeout
   - ( ) Environment labels - production/development
+  - ( ) Streaming request and response
   - ( ) Versioning
   - ( ) Forward env variables
   - ( ) Scoped fs access

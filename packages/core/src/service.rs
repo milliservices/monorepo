@@ -45,8 +45,8 @@ impl ServiceModule {
     let Some(Extern::Memory(memory)) = caller.get_export("memory") else {
       panic!("Memory export not defined")
     };
-    let buffer = ServiceStore::read_from_memory(&caller.as_context(), memory, ptr)?;
-    let _ = dbg!(String::from_utf8(buffer));
+    let mut buffer = ServiceStore::read_from_memory(&caller.as_context(), memory, ptr)?;
+    caller.data_mut().response_data.append(&mut buffer);
     Ok(())
   }
 
@@ -111,6 +111,7 @@ impl ServiceInstance {
         wasi_ctx,
         metadata: HashMap::new(),
         response_metadata: HashMap::new(),
+        response_data: Vec::new(),
         pointer_offset: 1,
       },
     );
@@ -152,5 +153,9 @@ impl ServiceInstance {
 
   pub fn get_response_metadata(&self) -> &HashMap<String, String> {
     &self.store.data().response_metadata
+  }
+
+  pub fn get_response_data(&self) -> &Vec<u8> {
+    &self.store.data().response_data
   }
 }

@@ -72,7 +72,9 @@ extern "C" fn on_request(input_ptr: i32) {
   }
 
   unsafe {
-    let ptr = write_to_memory("FROM WASM".into());
-    send_response(ptr);
+    send_response(write_to_memory("Response is coming".into()));
+    send_response(write_to_memory(" again".into()));
+    send_response(write_to_memory(" and again".into()));
+    send_response(write_to_memory(". So much data".into()));
   };
 }
