@@ -1,33 +1,59 @@
 * Now
+  - (x) Call service function to node
+  - ( ) Cross-service communication
   - ( ) CPython example
   - ( ) Haskell example
-  - ( ) Multi service messaging
   - ( ) Tests
-  - ( ) Wrapper for rust (proc macro + lib)
+  - ( ) Lib: rust (proc macro + lib)
   - ( ) Network layer
 
 * Next
   - ( ) Get assemblyscript example working?
-  - ( ) C example
-  - ( ) Wrapper for C (macro lib)
-  - ( ) Wrapper for Assemblyscript
+  - ( ) Lib: C
+  - ( ) Lib: Assemblyscript
   - ( ) Benchmarking
+  - ( ) :[file-for-io]{_}: Data in/out from file/named pipe instead?
 
 * Later
   - ( ) milliservice.yaml
   - ( ) Epoch based execution timeout
   - ( ) Environment labels - production/development
-  - ( ) Streaming request and response
+  - ( ) Streaming request and response (solved if using [file-for-io])
   - ( ) Versioning
   - ( ) Forward env variables
   - ( ) Scoped fs access
-  - ( ) Multiple request handlers (use `on_request` by default) (same module)
+  - (x) Multiple request handlers (use `on_request` by default) (same module)
   - ( ) Multiple core instances or namespacing (for scoping)
-  - ( ) Preloaded dynamically linked modules (to reduce wasm bundle size)?
-  - ( ) Wrapper for Go
-  - ( ) Wrapper for haskell
-  - ( ) Wrapper for ocaml
   - ( ) Multithreading
+  - ( ) Configurable memory per module?
+  - ( ) Security: enable capabilities per module (network, file, env vars, invoke other services, etc)
+  - ( ) Security: Overflow checks for data size
+  - ( ) Security: pointer increment should be cyclic?
+
+* Language
+  - (x) Rust
+  - ( ) Zig
+  - ( ) AssemblyScript
+  - ( ) JS (Javy)?
+  - ( ) CPython | RustPython
+  - ( ) C/C++
+  - ( ) Haskell
+  - ( ) Go
+  - ( ) Ocaml
+  - ( ) C#
+  - ( ) F#
+  - ( ) Crystal
+  - ( ) Elixir
+  - ( ) Faust
+  - ( ) Java
+  - ( ) Kotlin
+  - ( ) Lua
+  - ( ) Nim
+  - ( ) Ruby
+
+* Maybe
+  - ( ) Non-wasm runtime for js via deno_core?
+  - ( ) Preloaded dynamically linked modules (to reduce wasm bundle size)?
   - ( ) Keep an eye on wasm component model?
 
 * Shitpile
@@ -39,9 +65,14 @@
   - {https://docs.rs/wasmtime-wasi/latest/wasmtime_wasi/index.html}
   - {https://github.com/pmalmgren/wasi-data-sharing/blob/shared-linear-memory-demo/examples/wasi/main.rs}
   - {https://www.fermyon.com/}
+  - {https://wasmer.io/}
   - JS: {https://github.com/bytecodealliance/javy}
   - Go: {https://github.com/stealthrocket/wasi-go}
   - Ocaml: {https://github.com/ocsigen/js_of_ocaml}
+  - Cpython: {https://github.com/python/cpython/blob/main/Tools/wasm/README.md}
+  - Haskell: {https://gitlab.haskell.org/ghc/ghc-wasm-meta}
+  - Java: {https://github.com/fermyon/teavm-wasi}
+  - Lisp (wasCm) {https://github.com/FemtoEmacs/wasCm}
 
 * Pros
 ** vs monolith

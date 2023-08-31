@@ -4,7 +4,7 @@ extern "C" {
   fn send_response(data_ptr: i32);
   fn get_metadata(key_ptr: i32) -> i32;
   fn set_response_metadata(key_ptr: i32, value_ptr: i32);
-  // fn call_service(name_ptr: i32, data_ptr: i32, metadata??) -> i32;
+  fn call_service(name_ptr: i32, data_ptr: i32) -> i32;
 }
 
 fn get_mem_representation(ptr: i32) -> (i32, usize) {
@@ -68,6 +68,12 @@ extern "C" fn on_request(input_ptr: i32) {
     let key_ptr = write_to_memory("Server".into());
     let value_ptr = write_to_memory("milliservices_rust".into());
     set_response_metadata(key_ptr, value_ptr);
+
+    let res = call_service(
+      write_to_memory("foobar".into()),
+      write_to_memory("Data sent to foobar".into()),
+    );
+    let _ = dbg!(String::from_utf8(read_from_memory(res)));
   }
 
   unsafe {

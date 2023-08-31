@@ -1,0 +1,59 @@
+type = "node"
+
+# Shared module config
+[modules."*"]
+env.COMMON_ENV = "env-value"
+capabilities.network = true
+
+
+# Individual modules
+[modules.users-add]
+lib = "../../target/wasm32-wasi/debug/example_rust_wasm.wasm"
+symbol = "users_add"
+env_file = ".env"
+env = { MY_ENV_VAR = "secret-stuff" }
+
+[modules.users-list]
+lib.development = "../../target/wasm32-wasi/debug/example_rust_wasm.wasm"
+lib.production = "../../target/wasm32-wasi/release/example_rust_wasm.wasm"
+symbol = "users_list"
+
+[modules.users-list-v2]
+http.method = "GET"
+lib = "../../target/wasm32-wasi/debug/example_rust_wasm.wasm"
+symbol = "users_list_v2"
+
+
+# Nested/Scoped nodes
+[modules.users]
+type = "node"
+
+[modules.users.modules.add]
+lib = "../../target/wasm32-wasi/debug/example_rust_wasm.wasm"
+symbol = "users_add"
+
+[modules.users.modules.list]
+development.lib = "../../target/wasm32-wasi/debug/example_rust_wasm.wasm"
+production.lib = "../../target/wasm32-wasi/release/example_rust_wasm.wasm"
+symbol = "users_list"
+
+[modules.users.modules.list-v2]
+lib = "../../target/wasm32-wasi/debug/example_rust_wasm.wasm"
+symbol = "users_list_v2"
+
+[modules.users.modules.upload-photo]
+lib = "../../target/wasm32-wasi/debug/example_rust_wasm.wasm"
+symbol = "users_upload_photo"
+internals.memory = 20480
+
+
+# Private scoped nodes
+[modules.resource]
+type = "node"
+private = true # Routes inside node can only be accessed from within
+exports = [ "list" ] # Export specific module outside
+[modules.resource.modules.add]
+# ...
+[modules.resource.modules.list]
+# ...
+

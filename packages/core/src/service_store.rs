@@ -1,14 +1,34 @@
 use anyhow::Result;
-use std::{collections::HashMap, mem::size_of};
+use std::{collections::HashMap, mem::size_of, sync::Arc};
+use tokio::sync::{
+  mpsc::{Receiver, Sender},
+  Mutex,
+};
 use wasmtime::{Memory, StoreContext, StoreContextMut};
 use wasmtime_wasi::WasiCtx;
 
+#[derive(Debug)]
+pub struct SendMsg {
+  pub name: String,
+  pub data: Vec<u8>,
+}
+#[derive(Debug)]
+pub struct RecvMsg {
+  pub data: Vec<u8>,
+}
+
+pub type Channel<S, R> = Arc<Mutex<(Sender<S>, Receiver<R>)>>;
+
+pub type HostChannel = Channel<RecvMsg, SendMsg>;
+pub type ModuleChannel = Channel<SendMsg, RecvMsg>;
+
 pub struct ServiceStore {
-  pub wasi_ctx: WasiCtx,
   pub metadata: HashMap<String, String>,
-  pub response_metadata: HashMap<String, String>,
-  pub response_data: Vec<u8>,
   pub pointer_offset: u32,
+  pub response_data: Vec<u8>,
+  pub response_metadata: HashMap<String, String>,
+  pub wasi_ctx: WasiCtx,
+  pub channel: ModuleChannel,
 }
 
 impl ServiceStore {
