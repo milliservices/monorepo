@@ -1,14 +1,15 @@
 use anyhow::Result;
 use std::collections::HashMap;
 
+pub mod node;
 pub mod service;
-pub mod service_store;
+pub mod store;
 
-use service::{ModuleConfig, Node};
+use service::ModuleConfig;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-  let mut node = Node::new();
+  let mut node = node::Node::new();
 
   let cfg = ModuleConfig {
     path: "./target/wasm32-wasi/debug/example_rust_wasm.wasm".to_string(),
@@ -17,6 +18,8 @@ async fn main() -> Result<()> {
   };
   let name = cfg.name.to_string();
   node.load_module(cfg).await?;
+
+  let debug_start_time = std::time::Instant::now();
 
   let mut instance = node.create_instance(name).await?;
 
@@ -31,6 +34,8 @@ async fn main() -> Result<()> {
 
   dbg!(instance.get_response_metadata());
   let _ = dbg!(String::from_utf8(instance.get_response_data().to_owned()));
+
+  dbg!(debug_start_time.elapsed());
 
   task_handler.await??;
 
