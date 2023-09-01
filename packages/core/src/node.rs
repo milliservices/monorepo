@@ -1,31 +1,29 @@
 use anyhow::Result;
-use std::{collections::HashMap, sync::Arc};
-use tokio::sync::Mutex;
+use futures::Future;
+use std::collections::HashMap;
+use tokio::task::{JoinError, JoinHandle};
 use wasmtime::*;
 
 use crate::{
   service::{ModuleConfig, ServiceInstance, ServiceModule},
-  store::{HostChannel, ModuleChannel, RecvMsg, SendMsg},
+  store::RecvMsg,
 };
+
+pub type TaskHandler =
+  futures::future::JoinAll<impl Future<Output = std::result::Result<Result<()>, JoinError>>>;
 
 pub struct Node {
   modules: HashMap<String, ServiceModule>,
   module_config: HashMap<String, ModuleConfig>,
-  pub host_channel: HostChannel,
-  pub module_channel: ModuleChannel,
 }
 
 impl Node {
   #[allow(clippy::new_without_default)]
   pub fn new() -> Self {
-    let (send_1, recv_1) = tokio::sync::mpsc::channel::<SendMsg>(10);
-    let (send_2, recv_2) = tokio::sync::mpsc::channel::<RecvMsg>(10);
     // TODO: Use different channels per instances
     Self {
       modules: HashMap::new(),
       module_config: HashMap::new(),
-      host_channel: Arc::new(Mutex::new((send_2, recv_1))),
-      module_channel: Arc::new(Mutex::new((send_1, recv_2))),
     }
   }
 
@@ -37,7 +35,7 @@ impl Node {
     let module_config = &mut self.module_config;
 
     if !modules.contains_key(&path) {
-      let module = ServiceModule::new(&path, self.module_channel.clone()).await?;
+      let module = ServiceModule::new(&path).await?;
       modules.insert(path.to_owned(), module);
       module_config.insert(name, cfg);
     }
@@ -55,23 +53,31 @@ impl Node {
   }
 
   #[allow(clippy::await_holding_lock)]
-  pub fn launch_handler(&mut self) -> tokio::task::JoinHandle<Result<()>> {
-    let channel_mutex = self.host_channel.clone();
+  pub fn launch_handler(&mut self) -> TaskHandler {
+    let mut handles = vec![];
 
-    tokio::task::spawn(async move {
-      loop {
-        let mut channel = channel_mutex.lock().await;
-        if let Some(msg) = channel.1.recv().await {
-          // TODO: call the {msg.name} module
-          dbg!(msg);
-          channel
-            .0
-            .send(RecvMsg {
-              data: "This is response to req".into(),
-            })
-            .await?;
+    for (_key, module) in self.modules.iter() {
+      let channel_mutex = module.host_channel.clone();
+
+      let fut: JoinHandle<Result<()>> = tokio::task::spawn(async move {
+        loop {
+          let mut channel = channel_mutex.lock().await;
+          if let Some(msg) = channel.1.recv().await {
+            // TODO: call the {msg.name} module
+            dbg!(msg);
+            channel
+              .0
+              .send(RecvMsg {
+                data: "This is response to req".into(),
+              })
+              .await?;
+          }
         }
-      }
-    })
+      });
+
+      handles.push(fut);
+    }
+
+    futures::future::join_all(handles)
   }
 }

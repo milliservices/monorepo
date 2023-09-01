@@ -77,7 +77,7 @@ extern "C" fn on_request(input_ptr: i32) {
     set_response_metadata(key_ptr, value_ptr);
 
     let res = call_service(
-      write_to_memory("foobar".into()),
+      write_to_memory("ass".into()),
       write_to_memory("Data sent to foobar".into()),
     );
     let _ = dbg!(String::from_utf8(read_from_memory(res)));

@@ -1,9 +1,10 @@
 use anyhow::Result;
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
+use tokio::sync::Mutex;
 use wasmtime::*;
 use wasmtime_wasi::sync::WasiCtxBuilder;
 
-use crate::store::{ModuleChannel, SendMsg, ServiceStore};
+use crate::store::{HostChannel, ModuleChannel, RecvMsg, SendMsg, ServiceStore};
 
 #[derive(Debug, Clone)]
 pub struct ModuleConfig {
@@ -17,11 +18,12 @@ pub struct ServiceModule {
   // module: Module,
   engine: Engine,
   instance_pre: InstancePre<ServiceStore>,
-  channel: ModuleChannel,
+  pub module_channel: ModuleChannel,
+  pub host_channel: HostChannel,
 }
 
 impl ServiceModule {
-  pub async fn new(path: &str, channel: ModuleChannel) -> Result<Self> {
+  pub async fn new(path: &str) -> Result<Self> {
     let mut config = Config::default();
     config.async_support(true);
     let engine = Engine::new(&config)?;
@@ -48,12 +50,16 @@ impl ServiceModule {
 
     let instance_pre = linker.instantiate_pre(&module)?;
 
+    let (send_1, recv_1) = tokio::sync::mpsc::channel::<SendMsg>(10);
+    let (send_2, recv_2) = tokio::sync::mpsc::channel::<RecvMsg>(10);
+
     Ok(Self {
       // module,
       // linker,
       engine,
       instance_pre,
-      channel,
+      host_channel: Arc::new(Mutex::new((send_2, recv_1))),
+      module_channel: Arc::new(Mutex::new((send_1, recv_2))),
     })
   }
 
@@ -159,7 +165,7 @@ impl ServiceInstance {
         response_metadata: HashMap::new(),
         response_data: Vec::new(),
         pointer_offset: 1,
-        channel: service.channel.clone(),
+        channel: service.module_channel.clone(),
       },
     );
 
