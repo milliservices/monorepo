@@ -3,6 +3,7 @@
     flake-utils.url = "github:numtide/flake-utils";
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     rust-overlay.url = "github:oxalica/rust-overlay";
+    # ghc-wasm-meta.url = "https://gitlab.haskell.org/ghc/ghc-wasm-meta";
     # javy-cli-source = {
     #   url = "https://github.com/bytecodealliance/javy/releases/download/v1.1.2/javy-x86_64-linux-v1.1.2.gz";
     #   flake = false;

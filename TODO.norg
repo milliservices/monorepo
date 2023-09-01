@@ -1,14 +1,13 @@
 * Now
   - (x) Call service function to node
+  - ( ) Get assemblyscript example working?
   - ( ) Cross-service communication
-  - ( ) CPython example
-  - ( ) Haskell example
   - ( ) Tests
-  - ( ) Lib: rust (proc macro + lib)
-  - ( ) Network layer
 
 * Next
-  - ( ) Get assemblyscript example working?
+  - ( ) Zig | CPython | Haskell example
+  - ( ) Lib: rust (proc macro + lib)
+  - ( ) Network layer
   - ( ) Lib: C
   - ( ) Lib: Assemblyscript
   - ( ) Benchmarking
@@ -53,6 +52,7 @@
 
 * Maybe
   - ( ) Non-wasm runtime for js via deno_core?
+  - ( ) Wasm builder for ts with WIT + deno_core | ts-morph + deno_core?
   - ( ) Preloaded dynamically linked modules (to reduce wasm bundle size)?
   - ( ) Keep an eye on wasm component model?
 
@@ -60,6 +60,7 @@
   - (_) Wrapper for JS (javy js lib)
 
 * Links
+  - {https://wasix.org/docs}
   - {https://docs.wasmtime.dev/examples-rust-memory.html}
   - {https://docs.rs/wasmtime/12.0.1/wasmtime/struct.Memory.html#method.data}
   - {https://docs.rs/wasmtime-wasi/latest/wasmtime_wasi/index.html}
@@ -73,6 +74,7 @@
   - Haskell: {https://gitlab.haskell.org/ghc/ghc-wasm-meta}
   - Java: {https://github.com/fermyon/teavm-wasi}
   - Lisp (wasCm) {https://github.com/FemtoEmacs/wasCm}
+  - Crystal {https://forum.crystal-lang.org/t/trying-out-wasm-support/4508}
 
 * Pros
 ** vs monolith

@@ -168,10 +168,16 @@ impl ServiceInstance {
     let instance = service.instance_pre.instantiate_async(&mut store).await?;
 
     // Grow memory size
-    // let memory = instance
-    //   .get_memory(&mut store, "memory")
-    //   .ok_or(Error::msg("No memory of anything"))?;
-    // memory.grow_async(&mut store, 30).await?;
+    let memory = instance
+      .get_memory(&mut store, "memory")
+      .ok_or(Error::msg("No memory of anything"))?;
+    memory.grow_async(&mut store, 1000).await?;
+    dbg!(memory.size(&mut store));
+
+    if instance.get_export(&mut store, "_start").is_some() {
+      let initialize = instance.get_typed_func::<(), ()>(&mut store, "_start")?;
+      initialize.call_async(&mut store, ()).await?;
+    }
 
     Ok(ServiceInstance {
       request_handler_name: request_handler_name.to_string(),
@@ -185,9 +191,7 @@ impl ServiceInstance {
     let on_request = self
       .instance
       .get_typed_func::<i32, ()>(&mut self.store, &self.request_handler_name)?;
-
     on_request.call_async(&mut self.store, ptr).await?;
-
     Ok(())
   }
 

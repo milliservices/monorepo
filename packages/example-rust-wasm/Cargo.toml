@@ -5,7 +5,3 @@ edition = "2021"
 
 [lib]
 crate-type = ["cdylib"]
-
-[dependencies]
-anyhow = "1.0.75"
-num = "0.4.1"

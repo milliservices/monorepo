@@ -5,6 +5,13 @@ extern "C" {
   fn get_metadata(key_ptr: i32) -> i32;
   fn set_response_metadata(key_ptr: i32, value_ptr: i32);
   fn call_service(name_ptr: i32, data_ptr: i32) -> i32;
+
+  // fn create_call(name_ptr: i32) -> u32;
+  // fn set_data(id: u32, data_ptr: i32);
+  // fn set_metdata(id: u32, key_ptr: i32, value_ptr: i32);
+  // fn execute_call(id: u32);
+  // fn get_response_metdata(id: u32, data_ptr: i32);
+  // fn get_response_data(id: u32, data_ptr: i32);
 }
 
 fn get_mem_representation(ptr: i32) -> (i32, usize) {
