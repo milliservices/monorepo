@@ -1,27 +1,33 @@
+import { send_response } from './env'
 
-function read_from_memory(ptr: i32): u8[] {
+function read_from_memory(ptr: i32): Uint8Array {
   const data_ptr = load<i32>(ptr);
-  // const data_len = load<u32>(ptr + sizeof<i32>(), sizeof<u32>());
-  const data_len: u32 = 4;
-  const data: u8[] = [];
-  console.log(`${data_ptr} ${data_len}`)
+  const data_len = load<u32>(ptr + sizeof<i32>());
+  const data = new Uint8Array(data_len);
   for (let i: u32 = 0; i < data_len; i++) {
-    data.push(load<u8>(data_ptr + i, 1))
+    data[i] = load<u8>(data_ptr + i);
   }
   return data
 }
 
+function write_to_memory(data: ArrayBuffer): i32 {
+  const view = new DataView(data);
+  let ptr: usize = memory.data(1);
+  for (let i: i32 = 0; i < data.byteLength; i++) {
+    store<u8>(ptr + i, view.getUint8(i));
+  }
+
+  const ptr_ptr = ptr + data.byteLength;
+  store<i32>(ptr_ptr, ptr);
+  store<u32>(ptr_ptr + sizeof<i32>(), data.byteLength);
+  return ptr_ptr as i32
+}
+
 export function on_request(input_ptr: i32): void {
-  const ptr: u32 = 1;
-  store<i32>(ptr, -5, sizeof<i32>());
-  // const data: u8[] = [];
-  // for (let i: u32 = 0; i < 4; i++) {
-  //   data.push(load<u8>(ptr + i + 3, 1))
-  // }
-  console.log(`${load<ArrayBuffer>(ptr, 4)}`)
+  const input_buf = read_from_memory(input_ptr);
+  const input_data = String.UTF8.decode(input_buf.buffer);
+  console.log(input_data);
 
-
-  // const byutes = read_from_memory(input_ptr);
-  // let input_data = changetype<string>(byutes);
-  // console.log(`:${byutes.join(', ')}:`);
+  const resp_ptr = write_to_memory(String.UTF8.encode("Hello world"));
+  send_response(resp_ptr);
 }

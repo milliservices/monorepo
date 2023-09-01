@@ -58,8 +58,8 @@ impl ServiceStore {
     // Write data to memory
     let data_ptr = Self::mem_write(store, memory, data)?;
 
-    let mut ptr_ptr_buf: Vec<u8> = data_ptr.to_be_bytes().into();
-    let mut ptr_len_buf: Vec<u8> = (data_len as u32).to_be_bytes().into();
+    let mut ptr_ptr_buf: Vec<u8> = data_ptr.to_le_bytes().into();
+    let mut ptr_len_buf: Vec<u8> = (data_len as u32).to_le_bytes().into();
     ptr_ptr_buf.append(&mut ptr_len_buf);
 
     let ptr = Self::mem_write(store, memory, ptr_ptr_buf)?;
@@ -74,11 +74,11 @@ impl ServiceStore {
   ) -> Result<Vec<u8>> {
     let mut buffer = [0u8; size_of::<i32>()];
     memory.read(store, ptr as usize, &mut buffer)?;
-    let data_ptr = i32::from_be_bytes(buffer);
+    let data_ptr = i32::from_le_bytes(buffer);
 
     let mut buffer = [0u8; size_of::<u32>()];
     memory.read(store, ptr as usize + size_of::<i32>(), &mut buffer)?;
-    let data_len = u32::from_be_bytes(buffer);
+    let data_len = u32::from_le_bytes(buffer);
 
     let mut buffer = vec![0u8; data_len as usize];
     memory.read(store, data_ptr as usize, &mut buffer)?;

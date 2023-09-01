@@ -15,7 +15,7 @@ async fn main() -> Result<()> {
   let debug_start_time = std::time::Instant::now();
 
   // let task_handler = example_rust(&mut node).await?;
-  let task_handler = example_assemblyscript(&mut node).await?;
+  let task_handler = example_rust(&mut node).await?;
 
   dbg!(debug_start_time.elapsed());
 
