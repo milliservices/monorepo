@@ -1,7 +1,8 @@
 #![feature(type_alias_impl_trait)]
 
 use anyhow::Result;
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
+use tokio::sync::Mutex;
 
 pub mod node;
 pub mod service;
@@ -11,7 +12,8 @@ use service::ModuleConfig;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-  let mut node = node::Node::new();
+  let node_ref = node::Node::new_ref();
+
   let module_configs = vec![
     ModuleConfig {
       path: "./target/wasm32-wasi/debug/example_rust_wasm.wasm".to_string(),
@@ -26,14 +28,13 @@ async fn main() -> Result<()> {
   ];
 
   for cfg in module_configs {
-    node.load_module(cfg).await?;
+    node_ref.lock().await.load_module(cfg).await?;
   }
 
-  let task_handler = node.launch_handler();
+  let task_handler = node::launch_node_msg_handler(Arc::clone(&node_ref)).await;
 
   let debug_start_time = std::time::Instant::now();
-  run_instance(&mut node, "rust").await?;
-  // run_instance(&mut node, "ass").await?;
+  run_instance(node_ref, "rust").await?;
   dbg!(debug_start_time.elapsed());
 
   for res in task_handler.await {
@@ -43,8 +44,12 @@ async fn main() -> Result<()> {
   Ok(())
 }
 
-async fn run_instance(node: &mut node::Node, name: &str) -> Result<()> {
-  let mut instance = node.create_instance(name.to_string()).await?;
+async fn run_instance(node_ref: Arc<Mutex<node::Node>>, name: &str) -> Result<()> {
+  let mut instance = node_ref
+    .lock()
+    .await
+    .create_instance(name.to_string())
+    .await?;
 
   instance.update_metadata(HashMap::from([
     ("@method".to_string(), "POST".to_string()),

@@ -1,6 +1,6 @@
 use anyhow::Result;
 use futures::Future;
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, ops::DerefMut, sync::Arc};
 use tokio::{
   sync::Mutex,
   task::{JoinError, JoinHandle},
@@ -9,7 +9,7 @@ use wasmtime::*;
 
 use crate::{
   service::{ModuleConfig, ServiceInstance, ServiceModule},
-  store::RecvMsg,
+  store::{HostChannel, RecvMsg},
 };
 
 #[derive(Default)]
@@ -24,6 +24,9 @@ impl Node {
       modules: HashMap::new(),
       module_config: HashMap::new(),
     }
+  }
+  pub fn new_ref() -> Arc<Mutex<Self>> {
+    Arc::new(Mutex::new(Self::new()))
   }
 
   pub async fn load_module(&mut self, cfg: ModuleConfig) -> Result<&ServiceModule> {
@@ -51,4 +54,39 @@ impl Node {
     let module = self.load_module(cfg.to_owned()).await?;
     module.instantiate(&symbol).await
   }
+}
+
+pub async fn launch_node_msg_handler(
+  node: Arc<Mutex<Node>>,
+) -> futures::future::JoinAll<impl Future<Output = std::result::Result<Result<()>, JoinError>>> {
+  let mut handles = vec![];
+
+  for module in node.lock().await.modules.values() {
+    let host_channel = module.host_channel.clone();
+    let node_ref = Arc::clone(&node);
+
+    let fut: JoinHandle<Result<()>> = tokio::task::spawn(async move {
+      let mut ch = host_channel.lock().await;
+      let (tx, rx) = ch.deref_mut();
+
+      loop {
+        if let Some(msg) = rx.recv().await {
+          let mut instance = {
+            let mut node = node_ref.lock().await;
+            node.create_instance(msg.name).await?
+          };
+          instance.invoke(msg.data).await?;
+
+          tx.send(RecvMsg {
+            data: instance.get_response_data().to_owned(),
+          })
+          .await?;
+        }
+      }
+    });
+
+    handles.push(fut);
+  }
+
+  futures::future::join_all(handles)
 }
