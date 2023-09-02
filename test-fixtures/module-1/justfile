@@ -1,0 +1,2 @@
+build:
+  rustc --crate-type=cdylib --target wasm32-wasi ./lib.rs

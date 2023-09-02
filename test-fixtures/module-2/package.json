@@ -1,0 +1,9 @@
+{
+  "name": "module-2",
+  "version": "0.0.0",
+  "type": "module",
+  "devDependencies": {
+    "@assemblyscript/wasi-shim": "^0.1.0",
+    "assemblyscript": "^0.27.9"
+  }
+}

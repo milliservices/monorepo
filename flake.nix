@@ -45,6 +45,7 @@
             just
             cargo-watch
             wabt
+            assemblyscript
           ];
           nativeBuildInputs = [ clang ];
 

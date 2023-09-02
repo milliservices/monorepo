@@ -1,0 +1,2 @@
+build:
+  npm exec asc --config=asconfig.json lib.ts -o > lib.wasm

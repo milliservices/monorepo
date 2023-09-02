@@ -1,13 +1,14 @@
 * Now
   - (x) Call service function to node
   - (x) Get assemblyscript example working?
-  - ( ) Cross-service communication
+  - (x) Cross-service communication
+  - ( ) Create test examples
   - ( ) Tests
+  - ( ) Network layer
+  - ( ) Lib: rust (proc macro + lib)
 
 * Next
   - ( ) Zig | CPython | Haskell example
-  - ( ) Lib: rust (proc macro + lib)
-  - ( ) Network layer
   - ( ) Lib: C
   - ( ) Lib: Assemblyscript
   - ( ) Benchmarking
@@ -61,6 +62,7 @@
   - (_) Wrapper for JS (javy js lib)
 
 * Links
+  - {https://cryptii.com/pipes/integer-converter}
   - {https://wasix.org/docs}
   - {https://docs.wasmtime.dev/examples-rust-memory.html}
   - {https://docs.rs/wasmtime/12.0.1/wasmtime/struct.Memory.html#method.data}
@@ -97,7 +99,7 @@
 
 * Cons
 ** vs monolith
-   - ?
+   - build system for each module
 ** vs microservices
    - no fault isolation
    - not independently scalable

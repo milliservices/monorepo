@@ -4,11 +4,8 @@ use anyhow::Result;
 use std::{collections::HashMap, sync::Arc};
 use tokio::sync::Mutex;
 
-pub mod node;
-pub mod service;
-pub mod store;
-
-use service::ModuleConfig;
+use milliservices_core::node;
+use milliservices_core::service::ModuleConfig;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -16,18 +13,18 @@ async fn main() -> Result<()> {
 
   let module_configs = vec![
     ModuleConfig {
-      path: "./target/wasm32-wasi/debug/example_rust_wasm.wasm".to_string(),
       name: "rust".to_string(),
-      symbol: "on_request".to_string(),
-    },
-    ModuleConfig {
-      path: "./packages/example-assemblyscript/build/debug.wasm".to_string(),
-      name: "ass".to_string(),
-      symbol: "on_request".to_string(),
-    },
-    ModuleConfig {
       path: "./target/wasm32-wasi/debug/example_rust_wasm.wasm".to_string(),
+      symbol: "on_request".to_string(),
+    },
+    ModuleConfig {
+      name: "ass".to_string(),
+      path: "./packages/example-assemblyscript/build/debug.wasm".to_string(),
+      symbol: "on_request".to_string(),
+    },
+    ModuleConfig {
       name: "rust-final".to_string(),
+      path: "./target/wasm32-wasi/debug/example_rust_wasm.wasm".to_string(),
       symbol: "final_call".to_string(),
     },
   ];

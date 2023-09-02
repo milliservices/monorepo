@@ -21,3 +21,12 @@ fix:
   cargo fix --allow-staged
   cargo fmt --all
 
+build-fixtures:
+  #!/usr/bin/env sh
+  for dir in `find ./test-fixtures/* -type f -name justfile | xargs dirname`; do
+    just -d "$dir" -f "$dir/justfile" build || exit 1;
+  done
+
+test: build-fixtures
+  cargo test
+
