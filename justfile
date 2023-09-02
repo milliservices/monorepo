@@ -13,8 +13,8 @@ core *args:
 build-packages:
   #!/usr/bin/env sh
   for dir in `find ./packages/* -type f -name justfile | xargs dirname`; do
-    echo "Building $dir";
-    just -d "$dir" -f "$dir/justfile" build;
+    echo -e "\n:::::::::: building $dir ::::::::::\n";
+    just -d "$dir" -f "$dir/justfile" build || exit 1;
   done
 
 fix:

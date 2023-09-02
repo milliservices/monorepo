@@ -14,20 +14,23 @@ pub struct ModuleConfig {
 }
 
 pub struct ServiceModule {
-  // linker: Linker<ServiceStore>,
-  // module: Module,
+  pub config: ModuleConfig,
   engine: Engine,
   instance_pre: InstancePre<ServiceStore>,
   pub module_channel: ModuleChannel,
   pub host_channel: HostChannel,
+  // linker: Linker<ServiceStore>,
+  // module: Module,
 }
 
 impl ServiceModule {
-  pub async fn new(path: &str) -> Result<Self> {
-    let mut config = Config::default();
-    config.async_support(true);
-    let engine = Engine::new(&config)?;
-    let module = Module::from_file(&engine, path)?;
+  pub async fn new(cfg: &ModuleConfig) -> Result<Self> {
+    let module_config = cfg.clone();
+
+    let mut engine_config = Config::default();
+    engine_config.async_support(true);
+    let engine = Engine::new(&engine_config)?;
+    let module = Module::from_file(&engine, &module_config.path)?;
 
     let mut linker: Linker<ServiceStore> = Linker::new(&engine);
     wasmtime_wasi::add_to_linker(&mut linker, |store: &mut ServiceStore| &mut store.wasi_ctx)?;
@@ -54,6 +57,7 @@ impl ServiceModule {
     let (send_2, recv_2) = tokio::sync::mpsc::channel::<RecvMsg>(10);
 
     Ok(Self {
+      config: module_config,
       // module,
       // linker,
       engine,
