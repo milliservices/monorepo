@@ -7,7 +7,6 @@ function read_from_memory(ptr: i32): ArrayBuffer {
   for (let i: u32 = 0; i < data_len; i++) {
     data[i] = load<u8>(data_ptr + i);
   }
-  console.log(`${data}`)
   return data.buffer
 }
 
@@ -38,17 +37,15 @@ export function on_request(input_ptr: i32): void {
 
   const service_key_ptr = write_to_memory(String.UTF8.encode("rust-final"));
   const value_ptr = write_to_memory(String.UTF8.encode("FOOBAR"));
-  console.log(`ptr = ${service_key_ptr}`);
-  console.log(`keyptr = ${load<i32>(service_key_ptr)}`);
-
-  console.log(`read from ass = ${String.UTF8.decode(read_from_memory(service_key_ptr))}`);
-
+  // console.log(`ptr = ${service_key_ptr}`);
+  // console.log(`keyptr = ${load<i32>(service_key_ptr)}`);
+  // console.log(`read from ass = ${String.UTF8.decode(read_from_memory(service_key_ptr))}`);
   const data_ptr = call_service(
     service_key_ptr,
     value_ptr,
   );
   console.log(`:: [ASS] call response = ${String.UTF8.decode(read_from_memory(data_ptr))}`);
 
-  const resp_ptr = write_to_memory(String.UTF8.encode("Hello world"));
+  const resp_ptr = write_to_memory(String.UTF8.encode("This is an ass response"));
   send_response(resp_ptr);
 }

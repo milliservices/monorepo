@@ -9,7 +9,7 @@ use wasmtime::*;
 
 use crate::{
   service::{ModuleConfig, ServiceInstance, ServiceModule},
-  store::{HostChannel, RecvMsg},
+  store::RecvMsg,
 };
 
 #[derive(Default)]
@@ -39,8 +39,8 @@ impl Node {
     if !modules.contains_key(&path) {
       let module = ServiceModule::new(&cfg).await?;
       modules.insert(path.to_owned(), module);
-      module_config.insert(name, cfg);
     }
+    module_config.entry(name).or_insert(cfg);
 
     Ok(modules.get(&path).expect("unreachable: load_module"))
   }
@@ -49,7 +49,7 @@ impl Node {
     let cfg = self
       .module_config
       .get(&name)
-      .ok_or(Error::msg("Module not loaded"))?;
+      .ok_or(Error::msg(format!("Module not loaded: \"{name}\"")))?;
     let symbol = cfg.symbol.to_owned();
     let module = self.load_module(cfg.to_owned()).await?;
     module.instantiate(&symbol).await
@@ -57,6 +57,7 @@ impl Node {
 }
 
 pub async fn create_instance(node: Arc<Mutex<Node>>, name: String) -> Result<ServiceInstance> {
+  // let _ = node.try_lock()?; // Force try? to get early errors on
   node.lock().await.create_instance(name).await
 }
 
@@ -75,9 +76,9 @@ pub async fn launch_node_msg_handler(
 
       loop {
         if let Some(msg) = rx.recv().await {
-          println!("[PRE] {}", &msg.name);
-          let mut instance = create_instance(Arc::clone(&node_ref), msg.name.to_owned()).await?;
-          println!("[POST] {}", &msg.name);
+          let mut instance = create_instance(Arc::clone(&node_ref), msg.name.to_owned())
+            .await
+            .expect("Unable to create instance");
           instance.invoke(msg.data).await?;
 
           tx.send(RecvMsg {

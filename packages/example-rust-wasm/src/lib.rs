@@ -100,6 +100,7 @@ extern "C" fn final_call(input_ptr: i32) {
   println!(":: [RUST FINAL] input = {}", input_str);
 
   unsafe {
-    send_response(write_to_memory("Final response".into()));
+    let output = format!("Final response. With input {input_str}");
+    send_response(write_to_memory(output.into()));
   };
 }

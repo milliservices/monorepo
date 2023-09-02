@@ -27,7 +27,7 @@ async fn main() -> Result<()> {
     },
     ModuleConfig {
       path: "./target/wasm32-wasi/debug/example_rust_wasm.wasm".to_string(),
-      name: "rust".to_string(),
+      name: "rust-final".to_string(),
       symbol: "final_call".to_string(),
     },
   ];
@@ -60,7 +60,8 @@ async fn run_instance_test(node_ref: Arc<Mutex<node::Node>>, name: String) -> Re
   instance.invoke("Request data incoming".into()).await?;
 
   dbg!(instance.get_response_metadata());
-  let _ = dbg!(String::from_utf8(instance.get_response_data().to_owned()));
+  let response = String::from_utf8(instance.get_response_data().to_owned());
+  let _ = dbg!(response);
 
   Ok(())
 }
