@@ -12,6 +12,7 @@
   - ( ) Lib: Assemblyscript
   - ( ) Benchmarking
   - ( ) :[file-for-io]{_}: Data in/out from file/named pipe instead?
+  - ( ) error handling
 
 * Later
   - ( ) milliservice.yaml

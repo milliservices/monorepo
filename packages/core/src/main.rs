@@ -25,6 +25,11 @@ async fn main() -> Result<()> {
       name: "ass".to_string(),
       symbol: "on_request".to_string(),
     },
+    ModuleConfig {
+      path: "./target/wasm32-wasi/debug/example_rust_wasm.wasm".to_string(),
+      name: "rust".to_string(),
+      symbol: "final_call".to_string(),
+    },
   ];
 
   for cfg in module_configs {
@@ -34,7 +39,7 @@ async fn main() -> Result<()> {
   let task_handler = node::launch_node_msg_handler(Arc::clone(&node_ref)).await;
 
   let debug_start_time = std::time::Instant::now();
-  run_instance(node_ref, "rust").await?;
+  run_instance_test(node_ref, "rust".to_string()).await?;
   dbg!(debug_start_time.elapsed());
 
   for res in task_handler.await {
@@ -44,12 +49,8 @@ async fn main() -> Result<()> {
   Ok(())
 }
 
-async fn run_instance(node_ref: Arc<Mutex<node::Node>>, name: &str) -> Result<()> {
-  let mut instance = node_ref
-    .lock()
-    .await
-    .create_instance(name.to_string())
-    .await?;
+async fn run_instance_test(node_ref: Arc<Mutex<node::Node>>, name: String) -> Result<()> {
+  let mut instance = node::create_instance(Arc::clone(&node_ref), name).await?;
 
   instance.update_metadata(HashMap::from([
     ("@method".to_string(), "POST".to_string()),

@@ -58,7 +58,7 @@ fn write_to_memory(data: Vec<u8>) -> i32 {
 extern "C" fn on_request(input_ptr: i32) {
   let input_buf = read_from_memory(input_ptr);
   let input_str = String::from_utf8_lossy(input_buf.as_slice());
-  dbg!(input_str);
+  println!(":: [RUST] input = {}", input_str);
 
   unsafe {
     let value_ptr = get_metadata(write_to_memory("X-Authentication".into()));
@@ -80,7 +80,9 @@ extern "C" fn on_request(input_ptr: i32) {
       write_to_memory("ass".into()),
       write_to_memory("Data sent to foobar".into()),
     );
-    let _ = dbg!(String::from_utf8(read_from_memory(res)));
+    let data_buf = read_from_memory(res);
+    let data = String::from_utf8_lossy(data_buf.as_slice());
+    println!(":: [RUST] call response = {}", data);
   }
 
   unsafe {
@@ -88,5 +90,16 @@ extern "C" fn on_request(input_ptr: i32) {
     send_response(write_to_memory(" again".into()));
     send_response(write_to_memory(" and again".into()));
     send_response(write_to_memory(". So much data".into()));
+  };
+}
+
+#[no_mangle]
+extern "C" fn final_call(input_ptr: i32) {
+  let input_buf = read_from_memory(input_ptr);
+  let input_str = String::from_utf8_lossy(input_buf.as_slice());
+  println!(":: [RUST FINAL] input = {}", input_str);
+
+  unsafe {
+    send_response(write_to_memory("Final response".into()));
   };
 }

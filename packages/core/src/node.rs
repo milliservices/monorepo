@@ -56,6 +56,10 @@ impl Node {
   }
 }
 
+pub async fn create_instance(node: Arc<Mutex<Node>>, name: String) -> Result<ServiceInstance> {
+  node.lock().await.create_instance(name).await
+}
+
 pub async fn launch_node_msg_handler(
   node: Arc<Mutex<Node>>,
 ) -> futures::future::JoinAll<impl Future<Output = std::result::Result<Result<()>, JoinError>>> {
@@ -71,10 +75,9 @@ pub async fn launch_node_msg_handler(
 
       loop {
         if let Some(msg) = rx.recv().await {
-          let mut instance = {
-            let mut node = node_ref.lock().await;
-            node.create_instance(msg.name).await?
-          };
+          println!("[PRE] {}", &msg.name);
+          let mut instance = create_instance(Arc::clone(&node_ref), msg.name.to_owned()).await?;
+          println!("[POST] {}", &msg.name);
           instance.invoke(msg.data).await?;
 
           tx.send(RecvMsg {

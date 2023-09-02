@@ -82,6 +82,7 @@ impl ServiceStore {
 
     let mut buffer = vec![0u8; data_len as usize];
     memory.read(store, data_ptr as usize, &mut buffer)?;
+
     Ok(buffer)
   }
 }

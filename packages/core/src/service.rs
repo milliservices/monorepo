@@ -75,18 +75,21 @@ impl ServiceModule {
     let Some(Extern::Memory(memory)) = caller.get_export("memory") else {
       return Err(Error::msg("Memory export not defined"));
     };
-    let name = String::from_utf8(ServiceStore::read_from_memory(
-      &caller.as_context(),
-      memory,
-      name_ptr,
-    )?)?;
+    dbg!(name_ptr);
+    let name_buf = ServiceStore::read_from_memory(&caller.as_context(), memory, name_ptr)?;
+    let name = String::from_utf8(name_buf)?;
+
     let data = ServiceStore::read_from_memory(&caller.as_context(), memory, data_ptr)?;
+
+    println!(
+      "recvd from host = {name} {:?}",
+      String::from_utf8(data.to_owned())
+    );
 
     let response_data: Result<Vec<u8>> = {
       let mut channel = caller.as_context().data().channel.lock().await;
 
-      let msg = SendMsg { name, data };
-      channel.0.send(msg).await?;
+      channel.0.send(SendMsg { name, data }).await?;
 
       let msg = channel.1.recv().await.ok_or(Error::msg("No data recv"))?;
       Ok(msg.data)
