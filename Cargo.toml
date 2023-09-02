@@ -2,5 +2,5 @@
 resolver = "2"
 members = [
   "packages/core",
-  "packages/example-rust-wasm",
+  "examples/rust",
 ]

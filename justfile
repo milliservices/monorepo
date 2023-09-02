@@ -1,25 +1,19 @@
-run: build-packages
+run: build-examples
   cargo run --package milliservices_core
 
-watch:
-  cargo watch --shell 'just run'
+build: build-examples
+  echo -e "\n:::::::::: building core ::::::::::\n";
+  cargo build
 
-pkg path *args:
-  just -d "packages/{{path}}" -f "packages/{{path}}/justfile" {{args}}
+test: build-fixtures
+  cargo test
 
-core *args:
-  pkg core {{args}}
-
-build-packages:
+build-examples:
   #!/usr/bin/env sh
-  for dir in `find ./packages/* -type f -name justfile | xargs dirname`; do
+  for dir in `find ./examples/* -type f -name justfile | xargs dirname`; do
     echo -e "\n:::::::::: building $dir ::::::::::\n";
     just -d "$dir" -f "$dir/justfile" build || exit 1;
   done
-
-fix:
-  cargo fix --allow-staged
-  cargo fmt --all
 
 build-fixtures:
   #!/usr/bin/env sh
@@ -27,6 +21,13 @@ build-fixtures:
     just -d "$dir" -f "$dir/justfile" build || exit 1;
   done
 
-test: build-fixtures
-  cargo test
+fix:
+  cargo fix --allow-staged
+  cargo fmt --all
+
+pkg path *args:
+  just -d "packages/{{path}}" -f "packages/{{path}}/justfile" {{args}}
+
+core *args:
+  just pkg core {{args}}
 

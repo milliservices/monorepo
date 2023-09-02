@@ -19,7 +19,7 @@ async fn main() -> Result<()> {
     },
     ModuleConfig {
       name: "ass".to_string(),
-      path: "./packages/example-assemblyscript/build/debug.wasm".to_string(),
+      path: "./examples/assemblyscript/build/debug.wasm".to_string(),
       symbol: "on_request".to_string(),
     },
     ModuleConfig {
