@@ -9,7 +9,7 @@ use wasmtime::*;
 
 use crate::{
   service::{ModuleConfig, ServiceInstance, ServiceModule},
-  store::RecvMsg,
+  store::{RecvMsg, SendMsg},
 };
 
 #[derive(Default)]
@@ -75,18 +75,27 @@ pub async fn launch_node_msg_handler(
       let (tx, rx) = ch.deref_mut();
 
       loop {
-        if let Some(msg) = rx.recv().await {
-          let mut instance = create_instance(Arc::clone(&node_ref), msg.name.to_owned())
-            .await
-            .expect("Unable to create instance");
-          instance.invoke(msg.data).await?;
+        let message = rx.recv().await;
+        match message {
+          Some(SendMsg::Data { name, data }) => {
+            let mut instance = create_instance(Arc::clone(&node_ref), name.to_owned())
+              .await
+              .expect("Unable to create instance");
+            instance.invoke(data).await?;
 
-          tx.send(RecvMsg {
-            data: instance.get_response_data().to_owned(),
-          })
-          .await?;
-        }
+            tx.send(RecvMsg {
+              data: instance.get_response_data().to_owned(),
+            })
+            .await?;
+          }
+          Some(SendMsg::End) => {
+            break;
+          }
+          _ => {}
+        };
       }
+
+      Ok(())
     });
 
     handles.push(fut);

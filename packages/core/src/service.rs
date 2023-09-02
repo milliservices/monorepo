@@ -82,7 +82,7 @@ impl ServiceModule {
 
     let response_data: Result<Vec<u8>> = {
       let mut channel = caller.as_context().data().channel.lock().await;
-      channel.0.send(SendMsg { name, data }).await?;
+      channel.0.send(SendMsg::Data { name, data }).await?;
       // Wait for response
       let msg = channel.1.recv().await.ok_or(Error::msg("No data recv"))?;
       Ok(msg.data)
@@ -197,7 +197,17 @@ impl ServiceInstance {
     let on_request = self
       .instance
       .get_typed_func::<i32, ()>(&mut self.store, &self.request_handler_name)?;
+
     on_request.call_async(&mut self.store, ptr).await?;
+
+    let channel = Arc::clone(&self.store.data().channel);
+    tokio::spawn(async move {
+      // TODO: An extra delay just-in-case. Remove later
+      tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+      let ch = channel.lock().await;
+      ch.0.send(SendMsg::End).await.expect("unable to end task");
+    });
+
     Ok(())
   }
 

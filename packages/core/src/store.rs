@@ -8,9 +8,9 @@ use wasmtime::{Memory, StoreContext, StoreContextMut};
 use wasmtime_wasi::WasiCtx;
 
 #[derive(Debug)]
-pub struct SendMsg {
-  pub name: String,
-  pub data: Vec<u8>,
+pub enum SendMsg {
+  Data { name: String, data: Vec<u8> },
+  End,
 }
 #[derive(Debug)]
 pub struct RecvMsg {
