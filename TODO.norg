@@ -83,7 +83,6 @@
   - Lisp (wasCm) {https://github.com/FemtoEmacs/wasCm}
   - Crystal {https://forum.crystal-lang.org/t/trying-out-wasm-support/4508}
   - Network adapter {https://github.com/hyperium/hyper/blob/master/examples/service_struct_impl.rs}
-  - Network adapter alt {https://github.com/graphul-rs/graphul#-context}
 
 * Pros
 ** vs monolith

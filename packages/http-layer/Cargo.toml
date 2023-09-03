@@ -1,0 +1,10 @@
+[package]
+name = "milliservices_http_layer"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+hyper = { version = "0.14.27", features = ["server", "http1", "runtime", "tcp", "stream", "deprecated", "backports"] }
+tokio = { version = "1.32.0", features = ["macros", "sync", "net", "io-util"] }
+milliservices_core = { path = "../../packages/core" }
+anyhow = "1.0.75"

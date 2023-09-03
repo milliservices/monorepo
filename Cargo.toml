@@ -3,6 +3,7 @@ resolver = "2"
 members = [
   "packages/core",
   "packages/rust-module-utils",
+  "packages/http-layer",
   "examples/rust",
   "test-fixtures/module-1",
 ]

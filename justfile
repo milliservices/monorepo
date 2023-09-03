@@ -1,5 +1,6 @@
 run: build-examples
-  cargo run --package milliservices_core
+  # cargo run --package milliservices_core
+  cargo run --package milliservices_http_layer
 
 build: build-examples
   echo -e "\n:::::::::: building core ::::::::::\n";
