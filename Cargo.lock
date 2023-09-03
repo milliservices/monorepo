@@ -970,6 +970,7 @@ name = "milliservices_core"
 version = "0.0.0"
 dependencies = [
  "anyhow",
+ "async-trait",
  "futures",
  "tokio",
  "wasmtime",

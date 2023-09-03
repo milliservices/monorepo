@@ -1,15 +1,13 @@
 use anyhow::Result;
+
 use futures::Future;
-use std::{collections::HashMap, ops::DerefMut, sync::Arc};
-use tokio::{
-  sync::Mutex,
-  task::{JoinError, JoinHandle},
-};
+use std::{collections::HashMap, sync::Arc};
+use tokio::sync::Mutex;
 use wasmtime::*;
 
 use crate::{
   service::{ModuleConfig, ServiceInstance, ServiceModule},
-  store::{RecvMsg, SendMsg},
+  store::{HandleCallService, RecvMsg},
 };
 
 #[derive(Default)]
@@ -18,6 +16,8 @@ pub struct Node {
   module_config: HashMap<String, ModuleConfig>,
 }
 
+pub type NodeRef = Arc<Mutex<Node>>;
+
 impl Node {
   pub fn new() -> Self {
     Self {
@@ -25,7 +25,7 @@ impl Node {
       module_config: HashMap::new(),
     }
   }
-  pub fn new_ref() -> Arc<Mutex<Self>> {
+  pub fn new_ref() -> NodeRef {
     Arc::new(Mutex::new(Self::new()))
   }
 
@@ -56,50 +56,29 @@ impl Node {
   }
 }
 
-pub async fn create_instance(node: Arc<Mutex<Node>>, name: String) -> Result<ServiceInstance> {
-  // let _ = node.try_lock()?; // Force try? to get early errors on
-  node.lock().await.create_instance(name).await
-}
+pub fn create_instance(
+  node: NodeRef,
+  name: String,
+) -> std::pin::Pin<Box<dyn Future<Output = Result<ServiceInstance>> + Send>> {
+  Box::pin(async {
+    // let _ = self.try_lock()?; // Force try? to get early errors on
+    let mut instance = node.lock().await.create_instance(name).await?;
 
-pub async fn launch_node_msg_handler(
-  node: Arc<Mutex<Node>>,
-) -> futures::future::JoinAll<impl Future<Output = std::result::Result<Result<()>, JoinError>>> {
-  let mut handles = vec![];
+    let call_service: HandleCallService = Arc::new(move |msg| {
+      let node_ref_cb = Arc::clone(&node);
 
-  for module in node.lock().await.modules.values() {
-    let host_channel = module.host_channel.clone();
-    let node_ref = Arc::clone(&node);
+      Box::pin(async move {
+        let mut instance = create_instance(Arc::clone(&node_ref_cb), msg.name.to_owned()).await?;
+        instance.invoke(msg.data).await?;
 
-    let fut: JoinHandle<Result<()>> = tokio::task::spawn(async move {
-      let mut ch = host_channel.lock().await;
-      let (tx, rx) = ch.deref_mut();
-
-      loop {
-        let message = rx.recv().await;
-        match message {
-          Some(SendMsg::Data { name, data }) => {
-            let mut instance = create_instance(Arc::clone(&node_ref), name.to_owned())
-              .await
-              .expect("Unable to create instance");
-            instance.invoke(data).await?;
-
-            tx.send(RecvMsg {
-              data: instance.get_response_data().to_owned(),
-            })
-            .await?;
-          }
-          Some(SendMsg::End) => {
-            break;
-          }
-          _ => {}
-        };
-      }
-
-      Ok(())
+        Ok(RecvMsg {
+          data: instance.get_response_data().to_owned(),
+        })
+      })
     });
 
-    handles.push(fut);
-  }
+    instance.set_call_service_handler(call_service).await;
 
-  futures::future::join_all(handles)
+    Ok(instance)
+  })
 }

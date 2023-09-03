@@ -35,14 +35,9 @@ export function on_request(input_ptr: i32): void {
   const input_data = String.UTF8.decode(input_buf);
   console.log(`:: [ASS] input = ${input_data}`);
 
-  const service_key_ptr = write_to_memory(String.UTF8.encode("rust-final"));
-  const value_ptr = write_to_memory(String.UTF8.encode("FOOBAR"));
-  // console.log(`ptr = ${service_key_ptr}`);
-  // console.log(`keyptr = ${load<i32>(service_key_ptr)}`);
-  // console.log(`read from ass = ${String.UTF8.decode(read_from_memory(service_key_ptr))}`);
   const data_ptr = call_service(
-    service_key_ptr,
-    value_ptr,
+    write_to_memory(String.UTF8.encode("rust-final")),
+    write_to_memory(String.UTF8.encode("FOOBAR")),
   );
   console.log(`:: [ASS] call response = ${String.UTF8.decode(read_from_memory(data_ptr))}`);
 

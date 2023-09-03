@@ -1,10 +1,10 @@
 use anyhow::Result;
-use std::{collections::HashMap, sync::Arc};
-use tokio::sync::Mutex;
+use std::collections::HashMap;
+
 use wasmtime::*;
 use wasmtime_wasi::sync::WasiCtxBuilder;
 
-use crate::store::{HostChannel, ModuleChannel, RecvMsg, SendMsg, ServiceStore};
+use crate::store::{HandleCallService, SendMsg, ServiceStore};
 
 #[derive(Debug, Clone)]
 pub struct ModuleConfig {
@@ -17,8 +17,6 @@ pub struct ServiceModule {
   pub config: ModuleConfig,
   engine: Engine,
   instance_pre: InstancePre<ServiceStore>,
-  pub module_channel: ModuleChannel,
-  pub host_channel: HostChannel,
   // linker: Linker<ServiceStore>,
   // module: Module,
 }
@@ -53,17 +51,12 @@ impl ServiceModule {
 
     let instance_pre = linker.instantiate_pre(&module)?;
 
-    let (send_1, recv_1) = tokio::sync::mpsc::channel::<SendMsg>(10);
-    let (send_2, recv_2) = tokio::sync::mpsc::channel::<RecvMsg>(10);
-
     Ok(Self {
       config: module_config,
       // module,
       // linker,
       engine,
       instance_pre,
-      host_channel: Arc::new(Mutex::new((send_2, recv_1))),
-      module_channel: Arc::new(Mutex::new((send_1, recv_2))),
     })
   }
 
@@ -80,18 +73,29 @@ impl ServiceModule {
 
     let data = ServiceStore::read_from_memory(&caller.as_context(), memory, data_ptr)?;
 
-    let response_data: Result<Vec<u8>> = {
-      let mut channel = caller.as_context().data().channel.lock().await;
-      channel.0.send(SendMsg::Data { name, data }).await?;
-      // Wait for response
-      let msg = channel.1.recv().await.ok_or(Error::msg("No data recv"))?;
-      Ok(msg.data)
-    };
+    let handler = caller.data_mut().handle_call_service.as_ref();
+    if let Some(handler) = handler {
+      let ff = handler(SendMsg { name, data });
+      let res_fut = std::pin::pin!(ff);
+      let msg = std::pin::pin!(res_fut).await?;
+      let resp_ptr = ServiceStore::write_to_memory(&mut caller.as_context_mut(), memory, msg.data)?;
+      Ok(resp_ptr)
+    } else {
+      Err(Error::msg("wow"))
+    }
 
-    let resp_ptr =
-      ServiceStore::write_to_memory(&mut caller.as_context_mut(), memory, response_data?)?;
+    // let response_data: Result<Vec<u8>> = {
+    //   let mut channel = caller.as_context().data().channel.lock().await;
+    //   channel.0.send(SendMsg::Data { name, data }).await?;
+    //   // Wait for response
+    //   let msg = channel.1.recv().await.ok_or(Error::msg("No data recv"))?;
+    //   Ok(msg.data)
+    // };
 
-    Ok(resp_ptr)
+    // let resp_ptr =
+    //   ServiceStore::write_to_memory(&mut caller.as_context_mut(), memory, response_data?)?;
+
+    // Ok(resp_ptr)
   }
 
   fn cb_send_response(mut caller: Caller<'_, ServiceStore>, ptr: i32) -> Result<()> {
@@ -165,7 +169,7 @@ impl ServiceInstance {
         response_metadata: HashMap::new(),
         response_data: Vec::new(),
         pointer_offset: 1,
-        channel: service.module_channel.clone(),
+        handle_call_service: None,
       },
     );
 
@@ -192,22 +196,17 @@ impl ServiceInstance {
     })
   }
 
+  pub async fn set_call_service_handler(&mut self, cb: HandleCallService) {
+    let data = self.store.data_mut();
+    data.handle_call_service = Some(cb);
+  }
+
   pub async fn invoke(&mut self, data: Vec<u8>) -> Result<()> {
     let ptr = self.write_to_memory(data)?;
     let on_request = self
       .instance
       .get_typed_func::<i32, ()>(&mut self.store, &self.request_handler_name)?;
-
     on_request.call_async(&mut self.store, ptr).await?;
-
-    let channel = Arc::clone(&self.store.data().channel);
-    tokio::spawn(async move {
-      // TODO: An extra delay just-in-case. Remove later
-      tokio::time::sleep(std::time::Duration::from_millis(100)).await;
-      let ch = channel.lock().await;
-      ch.0.send(SendMsg::End).await.expect("unable to end task");
-    });
-
     Ok(())
   }
 

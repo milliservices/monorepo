@@ -1,4 +1,5 @@
 #![feature(type_alias_impl_trait)]
+#![feature(async_fn_in_trait)]
 
 use anyhow::Result;
 use std::{collections::HashMap, sync::Arc};
@@ -33,15 +34,9 @@ async fn main() -> Result<()> {
     node_ref.lock().await.load_module(cfg).await?;
   }
 
-  let task_handler = node::launch_node_msg_handler(Arc::clone(&node_ref)).await;
-
   let debug_start_time = std::time::Instant::now();
   run_instance_test(node_ref, "rust".to_string()).await?;
   dbg!(debug_start_time.elapsed());
-
-  for res in task_handler.await {
-    res??;
-  }
 
   Ok(())
 }

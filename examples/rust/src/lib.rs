@@ -83,6 +83,14 @@ extern "C" fn on_request(input_ptr: i32) {
     let data_buf = read_from_memory(res);
     let data = String::from_utf8_lossy(data_buf.as_slice());
     println!(":: [RUST] call response = {}", data);
+
+    let res = call_service(
+      write_to_memory("ass".into()),
+      write_to_memory("Another piece of ass data".into()),
+    );
+    let data_buf = read_from_memory(res);
+    let data = String::from_utf8_lossy(data_buf.as_slice());
+    println!(":: [RUST] call response 2 = {}", data);
   }
 
   unsafe {

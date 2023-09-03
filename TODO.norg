@@ -4,15 +4,18 @@
   - (x) Cross-service communication
   - (x) Create test examples
   - (x) stop listening to messages after module ends
+  - ( ) Use per instance channels
   - ( ) Lib: assemblyscript
-  - ( ) Lib: rust (proc macro + lib)
+  - ( ) Lib: rust (utils)
   - ( ) Tests
   - ( ) Network layer
+  - ( ) Share pointer offset with module?
 
 * Next
   - ( ) Zig | CPython | Haskell example
+  - ( ) Allow http calls from modules
   - ( ) Lib: C
-  - ( ) Lib: Assemblyscript
+  - ( ) Lib: rust (proc macro)
   - ( ) Benchmarking
   - ( ) :[file-for-io]{_}: Data in/out from file/named pipe instead?
   - ( ) error handling
@@ -80,6 +83,8 @@
   - Java: {https://github.com/fermyon/teavm-wasi}
   - Lisp (wasCm) {https://github.com/FemtoEmacs/wasCm}
   - Crystal {https://forum.crystal-lang.org/t/trying-out-wasm-support/4508}
+  - Network adapter {https://github.com/hyperium/hyper/blob/master/examples/service_struct_impl.rs}
+  - Network adapter alt {https://github.com/graphul-rs/graphul#-context}
 
 * Pros
 ** vs monolith
