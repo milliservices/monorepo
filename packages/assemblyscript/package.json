@@ -1,0 +1,14 @@
+{
+  "name": "@milliservices/assemblyscript",
+  "version": "0.0.0",
+  "description": "Helper utils for writing milliservice modules in assemblyscript",
+  "scripts": {
+    "build": "asc src/index.ts --target debug"
+  },
+  "author": "Akshay Nair <phenax5@gmail.com>",
+  "license": "MPL-2.0",
+  "devDependencies": {
+    "@assemblyscript/wasi-shim": "^0.1.0",
+    "assemblyscript": "^0.27.9"
+  }
+}
