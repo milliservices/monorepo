@@ -4,3 +4,14 @@ members = [
   "packages/core",
   "examples/rust",
 ]
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package.tokio]
+opt-level = 3
+[profile.dev.package.wasmtime]
+opt-level = 3
+[profile.dev.package.wasmtime-wasi]
+opt-level = 3
+

@@ -91,4 +91,14 @@ impl ServiceStore {
 
     Ok(buffer)
   }
+
+  pub fn read_string_from_memory(
+    store: &StoreContext<ServiceStore>,
+    memory: Memory,
+    ptr: i32,
+  ) -> Result<String> {
+    let bytes = Self::read_from_memory(store, memory, ptr)?;
+    let str = String::from_utf8(bytes)?;
+    Ok(str)
+  }
 }

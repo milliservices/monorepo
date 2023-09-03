@@ -11,13 +11,3 @@ tokio = { version = "1.32.0", features = ["macros", "sync"] }
 wasmtime = { version = "12.0.1", features = ["async"] }
 wasmtime-wasi = "12.0.1"
 
-[profile.dev]
-opt-level = 1
-
-[profile.dev.package.tokio]
-opt-level = 3
-[profile.dev.package.wasmtime]
-opt-level = 3
-[profile.dev.package.wasmtime-wasi]
-opt-level = 3
-

@@ -4,7 +4,6 @@
   - (x) Cross-service communication
   - (x) Create test examples
   - (x) stop listening to messages after module ends
-  - ( ) Use per instance channels
   - ( ) Lib: assemblyscript
   - ( ) Lib: rust (utils)
   - ( ) Tests

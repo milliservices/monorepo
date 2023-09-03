@@ -4,13 +4,26 @@ use std::collections::HashMap;
 use wasmtime::*;
 use wasmtime_wasi::sync::WasiCtxBuilder;
 
-use crate::store::{HandleCallService, SendMsg, ServiceStore};
+use crate::imports;
+use crate::store::{HandleCallService, ServiceStore};
 
 #[derive(Debug, Clone)]
 pub struct ModuleConfig {
   pub path: String,
   pub symbol: String,
   pub name: String,
+  pub host_module_name: String,
+}
+
+impl Default for ModuleConfig {
+  fn default() -> Self {
+    Self {
+      path: "".to_string(),
+      symbol: "on_request".to_string(),
+      name: "".to_string(), // TODO: auto generate uuid?
+      host_module_name: "env".to_string(),
+    }
+  }
 }
 
 pub struct ServiceModule {
@@ -33,19 +46,22 @@ impl ServiceModule {
     let mut linker: Linker<ServiceStore> = Linker::new(&engine);
     wasmtime_wasi::add_to_linker(&mut linker, |store: &mut ServiceStore| &mut store.wasi_ctx)?;
 
-    let module_name = "env";
-    linker.func_wrap(module_name, "send_response", Self::cb_send_response)?;
-    linker.func_wrap(module_name, "get_metadata", Self::cb_get_metadata)?;
     linker.func_wrap(
-      module_name,
+      &cfg.host_module_name,
+      "send_response",
+      imports::send_response,
+    )?;
+    linker.func_wrap(&cfg.host_module_name, "get_metadata", imports::get_metadata)?;
+    linker.func_wrap(
+      &cfg.host_module_name,
       "set_response_metadata",
-      Self::cb_set_response_metadata,
+      imports::set_response_metadata,
     )?;
     linker.func_wrap2_async(
-      module_name,
+      &cfg.host_module_name,
       "call_service",
       |caller, name_ptr: i32, data_ptr: i32| {
-        Box::new(Self::cb_call_service(caller, name_ptr, data_ptr))
+        Box::new(imports::call_service(caller, name_ptr, data_ptr))
       },
     )?;
 
@@ -53,98 +69,11 @@ impl ServiceModule {
 
     Ok(Self {
       config: module_config,
-      // module,
-      // linker,
       engine,
       instance_pre,
+      // module,
+      // linker,
     })
-  }
-
-  async fn cb_call_service(
-    mut caller: Caller<'_, ServiceStore>,
-    name_ptr: i32,
-    data_ptr: i32,
-  ) -> Result<i32> {
-    let Some(Extern::Memory(memory)) = caller.get_export("memory") else {
-      return Err(Error::msg("Memory export not defined"));
-    };
-    let name_buf = ServiceStore::read_from_memory(&caller.as_context(), memory, name_ptr)?;
-    let name = String::from_utf8(name_buf)?;
-
-    let data = ServiceStore::read_from_memory(&caller.as_context(), memory, data_ptr)?;
-
-    let handler = caller.data_mut().handle_call_service.as_ref();
-    if let Some(handler) = handler {
-      let ff = handler(SendMsg { name, data });
-      let res_fut = std::pin::pin!(ff);
-      let msg = std::pin::pin!(res_fut).await?;
-      let resp_ptr = ServiceStore::write_to_memory(&mut caller.as_context_mut(), memory, msg.data)?;
-      Ok(resp_ptr)
-    } else {
-      Err(Error::msg("wow"))
-    }
-
-    // let response_data: Result<Vec<u8>> = {
-    //   let mut channel = caller.as_context().data().channel.lock().await;
-    //   channel.0.send(SendMsg::Data { name, data }).await?;
-    //   // Wait for response
-    //   let msg = channel.1.recv().await.ok_or(Error::msg("No data recv"))?;
-    //   Ok(msg.data)
-    // };
-
-    // let resp_ptr =
-    //   ServiceStore::write_to_memory(&mut caller.as_context_mut(), memory, response_data?)?;
-
-    // Ok(resp_ptr)
-  }
-
-  fn cb_send_response(mut caller: Caller<'_, ServiceStore>, ptr: i32) -> Result<()> {
-    let Some(Extern::Memory(memory)) = caller.get_export("memory") else {
-      return Err(Error::msg("Memory export not defined"));
-    };
-    let mut buffer = ServiceStore::read_from_memory(&caller.as_context(), memory, ptr)?;
-    caller.data_mut().response_data.append(&mut buffer);
-    Ok(())
-  }
-
-  fn cb_set_response_metadata(
-    mut caller: Caller<'_, ServiceStore>,
-    key_ptr: i32,
-    value_ptr: i32,
-  ) -> Result<()> {
-    let Some(Extern::Memory(memory)) = caller.get_export("memory") else {
-      return Err(Error::msg("Memory export not defined"));
-    };
-
-    let key_buf = ServiceStore::read_from_memory(&caller.as_context(), memory, key_ptr)?;
-    let key = String::from_utf8(key_buf)?;
-
-    let value_buf = ServiceStore::read_from_memory(&caller.as_context(), memory, value_ptr)?;
-    let value = String::from_utf8(value_buf)?;
-
-    caller.data_mut().response_metadata.insert(key, value);
-
-    Ok(())
-  }
-
-  fn cb_get_metadata(mut caller: Caller<'_, ServiceStore>, ptr: i32) -> Result<i32> {
-    let Some(Extern::Memory(memory)) = caller.get_export("memory") else {
-      return Err(Error::msg("Memory export not defined"));
-    };
-
-    let key_buf = ServiceStore::read_from_memory(&caller.as_context(), memory, ptr)?;
-    let key = String::from_utf8(key_buf)?;
-    let metadata = &caller.data().metadata;
-
-    let value: Vec<u8> = metadata
-      .get(&key)
-      .map(|s| s.to_owned())
-      .unwrap_or_default()
-      .into();
-
-    let value_ptr = ServiceStore::write_to_memory(&mut caller.as_context_mut(), memory, value)?;
-
-    Ok(value_ptr)
   }
 
   pub async fn instantiate(&self, request_handler_name: &str) -> Result<ServiceInstance> {
@@ -184,9 +113,9 @@ impl ServiceInstance {
     memory.grow_async(&mut store, 1000).await?;
     dbg!(memory.size(&mut store));
 
-    if instance.get_export(&mut store, "_start").is_some() {
-      let initialize = instance.get_typed_func::<(), ()>(&mut store, "_start")?;
-      initialize.call_async(&mut store, ()).await?;
+    // Optional WASI module instantiation
+    if let Ok(init_fn) = instance.get_typed_func::<(), ()>(&mut store, "_start") {
+      init_fn.call_async(&mut store, ()).await?;
     }
 
     Ok(ServiceInstance {
@@ -202,21 +131,20 @@ impl ServiceInstance {
   }
 
   pub async fn invoke(&mut self, data: Vec<u8>) -> Result<()> {
-    let ptr = self.write_to_memory(data)?;
-    let on_request = self
-      .instance
-      .get_typed_func::<i32, ()>(&mut self.store, &self.request_handler_name)?;
-    on_request.call_async(&mut self.store, ptr).await?;
-    Ok(())
-  }
-
-  pub fn write_to_memory(&mut self, data: Vec<u8>) -> Result<i32> {
     let memory = self
       .instance
       .get_memory(&mut self.store, "memory")
       .ok_or(Error::msg("Memory export not defined"))?;
 
-    ServiceStore::write_to_memory(&mut self.store.as_context_mut(), memory, data)
+    let ptr = ServiceStore::write_to_memory(&mut self.store.as_context_mut(), memory, data)?;
+
+    let on_request = self
+      .instance
+      .get_typed_func::<i32, ()>(&mut self.store, &self.request_handler_name)?;
+
+    on_request.call_async(&mut self.store, ptr).await?;
+
+    Ok(())
   }
 
   pub fn update_metadata(&mut self, map: HashMap<String, String>) {

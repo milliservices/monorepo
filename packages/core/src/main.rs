@@ -17,16 +17,19 @@ async fn main() -> Result<()> {
       name: "rust".to_string(),
       path: "./target/wasm32-wasi/debug/example_rust_wasm.wasm".to_string(),
       symbol: "on_request".to_string(),
+      ..Default::default()
     },
     ModuleConfig {
       name: "ass".to_string(),
       path: "./examples/assemblyscript/build/debug.wasm".to_string(),
       symbol: "on_request".to_string(),
+      ..Default::default()
     },
     ModuleConfig {
       name: "rust-final".to_string(),
       path: "./target/wasm32-wasi/debug/example_rust_wasm.wasm".to_string(),
       symbol: "final_call".to_string(),
+      ..Default::default()
     },
   ];
 
@@ -42,7 +45,7 @@ async fn main() -> Result<()> {
 }
 
 async fn run_instance_test(node_ref: Arc<Mutex<node::Node>>, name: String) -> Result<()> {
-  let mut instance = node::create_instance(Arc::clone(&node_ref), name).await?;
+  let mut instance = node::spawn_instance(Arc::clone(&node_ref), name).await?;
 
   instance.update_metadata(HashMap::from([
     ("@method".to_string(), "POST".to_string()),

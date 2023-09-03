@@ -1,19 +1,22 @@
+use std::sync::Arc;
+
 use milliservices_core::node;
 use milliservices_core::service::ModuleConfig;
 
 #[tokio::test]
 async fn single_module_node() {
-  let mut node = node::Node::new();
+  let node = node::Node::new_ref();
+
   let cfg = ModuleConfig {
     name: "test-module".to_string(),
     path: "../../test-fixtures/module-1/lib.wasm".to_string(),
     symbol: "simple_calculations".to_string(),
+    ..Default::default()
   };
 
-  node.load_module(cfg).await.expect("module");
+  node.lock().await.load_module(cfg).await.expect("module");
 
-  let mut instance = node
-    .create_instance("test-module".to_string())
+  let mut instance = node::spawn_instance(Arc::clone(&node), "test-module".to_string())
     .await
     .expect("instance");
 

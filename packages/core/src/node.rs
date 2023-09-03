@@ -56,19 +56,19 @@ impl Node {
   }
 }
 
-pub fn create_instance(
+pub fn spawn_instance(
   node: NodeRef,
   name: String,
 ) -> std::pin::Pin<Box<dyn Future<Output = Result<ServiceInstance>> + Send>> {
   Box::pin(async {
-    // let _ = self.try_lock()?; // Force try? to get early errors on
+    // let _ = node.try_lock()?; // Force try? to get early errors on
     let mut instance = node.lock().await.create_instance(name).await?;
 
     let call_service: HandleCallService = Arc::new(move |msg| {
       let node_ref_cb = Arc::clone(&node);
 
       Box::pin(async move {
-        let mut instance = create_instance(Arc::clone(&node_ref_cb), msg.name.to_owned()).await?;
+        let mut instance = spawn_instance(Arc::clone(&node_ref_cb), msg.name.to_owned()).await?;
         instance.invoke(msg.data).await?;
 
         Ok(RecvMsg {
