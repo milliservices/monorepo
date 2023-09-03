@@ -1,2 +1,3 @@
 build:
-  rustc --crate-type=cdylib --target wasm32-wasi ./lib.rs
+  cargo build --target wasm32-wasi
+  cp ../../target/wasm32-wasi/debug/test_fixtures_module_1.wasm lib.wasm

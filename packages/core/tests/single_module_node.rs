@@ -19,25 +19,27 @@ async fn get_module_instance(cfg: ModuleConfig) -> (ServiceInstance, NodeRef) {
   (instance, node)
 }
 
+fn get_wasm_path(s: &str) -> String { format!("../../test-fixtures/{s}/lib.wasm") }
+
 #[tokio::test]
 async fn module_1_simple_io() {
   let (mut instance, _) = get_module_instance(ModuleConfig {
-    path: "../../test-fixtures/module-1/lib.wasm".to_string(),
+    path: get_wasm_path("module-1"),
     symbol: "simple_io".to_string(),
     ..Default::default()
   })
   .await;
 
-  instance.invoke(vec![6, 9, 4, 2, 0]).await.expect("invoke");
+  instance.invoke("Giving input".into()).await.expect("invoke");
 
-  let response = instance.get_response_data().to_owned();
-  assert_eq!(response, vec![] as Vec<u8>);
+  let response = String::from_utf8(instance.get_response_data().to_owned());
+  assert_eq!(response, Ok("Getting output after Giving input".into()));
 }
 
 #[tokio::test]
 async fn module_2_simple_io() {
   let (mut instance, _) = get_module_instance(ModuleConfig {
-    path: "../../test-fixtures/module-2/lib.wasm".to_string(),
+    path: get_wasm_path("module-2"),
     symbol: "simple_io".to_string(),
     ..Default::default()
   })
@@ -45,15 +47,14 @@ async fn module_2_simple_io() {
 
   instance.invoke("input data".into()).await.expect("invoke");
 
-  let response_buf = instance.get_response_data().to_owned();
-  let response = String::from_utf8(response_buf);
+  let response = String::from_utf8(instance.get_response_data().to_owned());
   assert_eq!(response, Ok("input data. adds output data".to_string()));
 }
 
 #[tokio::test]
 async fn module_2_simple_calculations() {
   let (mut instance, _) = get_module_instance(ModuleConfig {
-    path: "../../test-fixtures/module-2/lib.wasm".to_string(),
+    path: get_wasm_path("module-2"),
     symbol: "simple_calculations".to_string(),
     ..Default::default()
   })

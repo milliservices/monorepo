@@ -1425,6 +1425,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "test_fixtures_module_1"
+version = "0.1.0"
+dependencies = [
+ "milliservices_utils",
+]
+
+[[package]]
 name = "thiserror"
 version = "1.0.47"
 source = "registry+https://github.com/rust-lang/crates.io-index"

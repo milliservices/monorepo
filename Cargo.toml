@@ -4,6 +4,7 @@ members = [
   "packages/core",
   "packages/utils",
   "examples/rust",
+  "test-fixtures/module-1",
 ]
 
 [profile.dev]
