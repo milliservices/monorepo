@@ -2,7 +2,7 @@
 resolver = "2"
 members = [
   "packages/core",
-  "packages/utils",
+  "packages/rust-module-utils",
   "examples/rust",
   "test-fixtures/module-1",
 ]

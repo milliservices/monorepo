@@ -7,5 +7,5 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-milliservices_utils = { path = "../../packages/utils" }
+milliservices_utils = { path = "../../packages/rust-module-utils" }
 

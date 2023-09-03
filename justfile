@@ -6,7 +6,7 @@ build: build-examples
   cargo build
 
 test: build-fixtures
-  cargo test
+  cargo test --test='test*'
 
 build-examples:
   #!/usr/bin/env sh
