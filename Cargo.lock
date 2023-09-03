@@ -535,6 +535,9 @@ dependencies = [
 [[package]]
 name = "example_rust_wasm"
 version = "0.0.0"
+dependencies = [
+ "milliservices_utils",
+]
 
 [[package]]
 name = "fallible-iterator"
@@ -976,6 +979,10 @@ dependencies = [
  "wasmtime",
  "wasmtime-wasi",
 ]
+
+[[package]]
+name = "milliservices_utils"
+version = "0.1.0"
 
 [[package]]
 name = "miniz_oxide"
