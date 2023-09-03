@@ -22,7 +22,7 @@ build-fixtures:
   done
 
 fix:
-  cargo fix --allow-staged
+  cargo fix --allow-dirty --allow-staged
   cargo fmt --all
 
 pkg path *args:

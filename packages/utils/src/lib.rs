@@ -15,8 +15,7 @@ extern "C" {
 }
 
 pub fn read_as_string(ptr: i32) -> Result<String, std::string::FromUtf8Error> {
-  let data = read_from_memory(ptr);
-  String::from_utf8(data)
+  String::from_utf8(read_from_memory(ptr))
 }
 
 pub fn send_string_response(str: String) {
@@ -31,12 +30,10 @@ pub fn read_from_memory(ptr: i32) -> Vec<u8> {
   let data_buf = unsafe { Vec::from_raw_parts(data_ptr as *mut u8, data_len, data_len) };
   let owned_data_buf = data_buf.to_owned();
   std::mem::forget(data_buf);
-
   owned_data_buf
 }
 
 pub fn write_to_memory(data: Vec<u8>) -> i32 {
-  // let data = data.to_owned();
   let data_len = data.len();
   let data_ptr = data.as_ptr() as i32;
 
