@@ -7,12 +7,18 @@
   - (x) Lib: assemblyscript
   - (x) Lib: rust (utils)
   - (x) Tests
-  - ( ) Network layer
-  - ( ) Share pointer offset with module?
+  - (x) Network layer
+  - (x) Network layer metadata
+  - ( ) Network library
+  - ( ) Zig
 
 * Next
-  - ( ) Zig | CPython | Haskell example
+  - ( ) Zig library
+  - ( ) CLI
+  - ( ) milliservice.yaml
   - ( ) Allow http calls from modules
+  - ( ) Share pointer offset with module?
+  - ( ) CPython | Haskell example
   - ( ) Lib: C
   - ( ) Lib: rust (proc macro)
   - ( ) Benchmarking
@@ -20,7 +26,6 @@
   - ( ) error handling
 
 * Later
-  - ( ) milliservice.yaml
   - ( ) Epoch based execution timeout
   - ( ) Environment labels - production/development
   - ( ) Streaming request and response (solved if using [file-for-io])

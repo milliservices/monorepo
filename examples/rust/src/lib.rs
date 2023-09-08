@@ -21,7 +21,7 @@ extern "C" fn on_request(input_ptr: i32) {
     set_response_metadata(key_ptr, value_ptr);
 
     let res = call_service(
-      write_to_memory("ass".into()),
+      write_to_memory("/ass".into()),
       write_to_memory("Data sent to foobar".into()),
     );
     let data_buf = read_from_memory(res);
@@ -29,7 +29,7 @@ extern "C" fn on_request(input_ptr: i32) {
     println!(":: [RUST] call response = {}", data);
 
     let res = call_service(
-      write_to_memory("ass".into()),
+      write_to_memory("/ass".into()),
       write_to_memory("Another piece of ass data".into()),
     );
     let data_buf = read_from_memory(res);
@@ -47,5 +47,17 @@ extern "C" fn on_request(input_ptr: i32) {
 extern "C" fn final_call(input_ptr: i32) {
   let input_str = read_as_string(input_ptr).expect("read input err");
   println!(":: [RUST FINAL] input = {}", input_str);
+
+  unsafe {
+    let value_ptr = get_metadata(write_to_memory("authentication".into()));
+    let metadata_value = read_as_string(value_ptr).expect("Cant read value of key");
+    dbg!(metadata_value);
+  }
+
+  unsafe {
+    let key_ptr = write_to_memory("Server".into());
+    let value_ptr = write_to_memory("milliservices_rust".into());
+    set_response_metadata(key_ptr, value_ptr);
+  }
   send_string_response(format!("Final response. With input {input_str}"));
 }

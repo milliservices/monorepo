@@ -1,7 +1,7 @@
 #![feature(type_alias_impl_trait)]
 #![feature(async_fn_in_trait)]
 
-use anyhow::Result;
+use anyhow::{Error, Result};
 use std::{collections::HashMap, sync::Arc};
 use tokio::sync::Mutex;
 
@@ -45,7 +45,9 @@ async fn main() -> Result<()> {
 }
 
 async fn run_instance_test(node_ref: Arc<Mutex<node::Node>>, name: String) -> Result<()> {
-  let mut instance = node::spawn_instance(Arc::clone(&node_ref), name).await?;
+  let mut instance = node::spawn_instance(Arc::clone(&node_ref), name)
+    .await?
+    .ok_or(Error::msg("foobar"))?;
 
   instance.update_metadata(HashMap::from([
     ("@method".to_string(), "POST".to_string()),

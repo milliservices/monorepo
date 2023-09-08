@@ -110,7 +110,7 @@ impl ServiceInstance {
     let memory = instance
       .get_memory(&mut store, "memory")
       .ok_or(Error::msg("No memory of anything"))?;
-    memory.grow_async(&mut store, 1000).await?;
+    // memory.grow_async(&mut store, 100).await?;
     dbg!(memory.size(&mut store));
 
     // Optional WASI module instantiation

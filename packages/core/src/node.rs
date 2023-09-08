@@ -45,40 +45,46 @@ impl Node {
     Ok(modules.get(&path).expect("unreachable: load_module"))
   }
 
-  pub async fn create_instance(&mut self, name: String) -> Result<ServiceInstance> {
-    let cfg = self
-      .module_config
-      .get(&name)
-      .ok_or(Error::msg(format!("Module not loaded: \"{name}\"")))?;
-    let symbol = cfg.symbol.to_owned();
-    let module = self.load_module(cfg.to_owned()).await?;
-    module.instantiate(&symbol).await
+  pub async fn create_instance(&mut self, name: String) -> Result<Option<ServiceInstance>> {
+    if let Some(cfg) = self.module_config.get(&name) {
+      let symbol = cfg.symbol.to_owned();
+      let module = self.load_module(cfg.to_owned()).await?;
+      Ok(Some(module.instantiate(&symbol).await?))
+    } else {
+      Ok(None)
+    }
   }
 }
 
 pub fn spawn_instance(
   node: NodeRef,
   name: String,
-) -> std::pin::Pin<Box<dyn Future<Output = Result<ServiceInstance>> + Send>> {
+) -> std::pin::Pin<Box<dyn Future<Output = Result<Option<ServiceInstance>>> + Send>> {
   Box::pin(async {
     // let _ = node.try_lock()?; // Force try? to get early errors on
-    let mut instance = node.lock().await.create_instance(name).await?;
+    let instance = node.lock().await.create_instance(name).await?;
 
-    let call_service: HandleCallService = Arc::new(move |msg| {
-      let node_ref_cb = Arc::clone(&node);
+    if let Some(mut instance) = instance {
+      let call_service: HandleCallService = Arc::new(move |msg| {
+        let node_ref_cb = Arc::clone(&node);
 
-      Box::pin(async move {
-        let mut instance = spawn_instance(Arc::clone(&node_ref_cb), msg.name.to_owned()).await?;
-        instance.invoke(msg.data).await?;
+        Box::pin(async move {
+          let mut instance = spawn_instance(Arc::clone(&node_ref_cb), msg.name.to_owned())
+            .await?
+            .ok_or(Error::msg(format!("Module not found: {}", msg.name)))?;
+          instance.invoke(msg.data).await?;
 
-        Ok(RecvMsg {
-          data: instance.get_response_data().to_owned(),
+          Ok(RecvMsg {
+            data: instance.get_response_data().to_owned(),
+          })
         })
-      })
-    });
+      });
 
-    instance.set_call_service_handler(call_service).await;
+      instance.set_call_service_handler(call_service).await;
 
-    Ok(instance)
+      Ok(Some(instance))
+    } else {
+      Ok(None)
+    }
   })
 }
