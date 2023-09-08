@@ -58,6 +58,10 @@ extern "C" fn final_call(input_ptr: i32) {
     let key_ptr = write_to_memory("Server".into());
     let value_ptr = write_to_memory("milliservices_rust".into());
     set_response_metadata(key_ptr, value_ptr);
+
+    let key_ptr = write_to_memory("@status".into());
+    let value_ptr = write_to_memory("202".into());
+    set_response_metadata(key_ptr, value_ptr);
   }
   send_string_response(format!("Final response. With input {input_str}"));
 }
