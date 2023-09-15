@@ -1,5 +1,5 @@
 
-POST http://localhost:3000/rust-final
+POST http://localhost:3000/rust
 Content-Type: application/json
 Authentication: hey-auth-token-here
 

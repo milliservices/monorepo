@@ -3,16 +3,16 @@
     flake-utils.url = "github:numtide/flake-utils";
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     rust-overlay.url = "github:oxalica/rust-overlay";
-    # ghc-wasm-meta.url = "https://gitlab.haskell.org/ghc/ghc-wasm-meta";
+    ghc-wasm-meta.url = "https://gitlab.haskell.org/ghc/ghc-wasm-meta/-/archive/master/ghc-wasm-meta-master.tar.gz";
     # javy-cli-source = {
     #   url = "https://github.com/bytecodealliance/javy/releases/download/v1.1.2/javy-x86_64-linux-v1.1.2.gz";
     #   flake = false;
     # };
   };
 
-  outputs = { self, nixpkgs, rust-overlay, flake-utils, ... }:
+  outputs = { self, nixpkgs, rust-overlay, flake-utils, ghc-wasm-meta, ... }:
     let
-      shell = { pkgs }:
+      shell = { pkgs, system }:
         with pkgs;
         let
           rust = rust-bin.nightly.latest.default.override {
@@ -38,6 +38,7 @@
           #   installPhase = '' '';
           # };
         in
+
         mkShell rec {
           buildInputs = [
             rust
@@ -46,7 +47,8 @@
             cargo-watch
             wabt
             assemblyscript
-            zig
+            go
+            ghc-wasm-meta.packages.${system}.wasm32-wasi-ghc-gmp
           ];
           nativeBuildInputs = [ clang ];
 
@@ -65,7 +67,7 @@
           cargoToml = builtins.fromTOML (builtins.readFile ./Cargo.toml);
         in
         {
-          devShells.default = shell { inherit pkgs; };
+          devShells.default = shell { inherit pkgs system; };
           packages.default = pkgs.rustPlatform.buildRustPackage {
             inherit (cargoToml.package) name version;
             src = ./.;

@@ -1,0 +1,6 @@
+# TODO: Wait for go 1.21.1 for nixos
+
+build:
+  # GOOS=wasip1 GOARCH=wasm go build -o lib.wasm lib.go
+  GOOS=js GOARCH=wasm go build -o lib.wasm lib.go
+

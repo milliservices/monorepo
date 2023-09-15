@@ -13,7 +13,7 @@ extern "C" fn on_request(input_ptr: i32) {
 
   unsafe {
     let key_ptr = write_to_memory("Content-Type".into());
-    let value_ptr = write_to_memory("application/json".into());
+    let value_ptr = write_to_memory("text/plain".into());
     set_response_metadata(key_ptr, value_ptr);
 
     let key_ptr = write_to_memory("Server".into());

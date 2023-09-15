@@ -6,44 +6,46 @@
   - (x) stop listening to messages after module ends
   - (x) Lib: assemblyscript
   - (x) Lib: rust (utils)
+  - (x) Multiple request handlers (use `on_request` by default) (same module)
   - (x) Tests
   - (x) Network layer
   - (x) Network layer metadata
   - (x) Network library
-  - ( ) Zig
-
-* Next
-  - ( ) Zig library
+  - ( ) Prefix import labels
+  - ( ) Refactor to using request builder for `call_service`
+  - ( ) Allow http calls from modules
   - ( ) CLI
   - ( ) milliservice.yaml
-  - ( ) Allow http calls from modules
+  - ( ) Epoch based execution timeout
+
+* Next
   - ( ) Share pointer offset with module?
   - ( ) CPython | Haskell example
-  - ( ) Lib: C
   - ( ) Lib: rust (proc macro)
   - ( ) Benchmarking
   - ( ) :[file-for-io]{_}: Data in/out from file/named pipe instead?
   - ( ) error handling
+  - ( ) CGI-ish interface via stdin/stdout for targets that don't have exports? (fixes [file-for-io])
 
 * Later
-  - ( ) Epoch based execution timeout
   - ( ) Environment labels - production/development
   - ( ) Streaming request and response (solved if using [file-for-io])
   - ( ) Versioning
   - ( ) Forward env variables
   - ( ) Scoped fs access
-  - (x) Multiple request handlers (use `on_request` by default) (same module)
   - ( ) Multiple core instances or namespacing (for scoping)
   - ( ) Multithreading
   - ( ) Configurable memory per module?
   - ( ) Security: enable capabilities per module (network, file, env vars, invoke other services, etc)
   - ( ) Security: Overflow checks for data size
   - ( ) Security: pointer increment should be cyclic?
+  - ( ) Websocket/Persistant reactive instances?
+  - ( ) Embedded runtimes
 
 * Language
   - (x) Rust
   - ( ) Zig
-  - ( ) AssemblyScript
+  - (x) AssemblyScript
   - ( ) JS (Javy)?
   - ( ) CPython | RustPython
   - ( ) C/C++
@@ -54,7 +56,6 @@
   - ( ) F#
   - ( ) Crystal
   - ( ) Elixir
-  - ( ) Faust
   - ( ) Java
   - ( ) Kotlin
   - ( ) Lua
@@ -71,6 +72,7 @@
   - (_) Wrapper for JS (javy js lib)
 
 * Links
+  - {https://crates.io/crates/wasm-encoder/0.32.0}
   - {https://cryptii.com/pipes/integer-converter}
   - {https://wasix.org/docs}
   - {https://docs.wasmtime.dev/examples-rust-memory.html}
