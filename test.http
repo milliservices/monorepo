@@ -1,5 +1,19 @@
 
+POST http://localhost:3000/haskell
+Content-Type: application/json
+Authentication: hey-auth-token-here
+
+{ "hello": "world" }
+
+
 POST http://localhost:3000/rust
+Content-Type: application/json
+Authentication: hey-auth-token-here
+
+{ "hello": "world" }
+
+
+POST http://localhost:3000/ass
 Content-Type: application/json
 Authentication: hey-auth-token-here
 

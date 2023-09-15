@@ -22,6 +22,12 @@ async fn main() -> anyhow::Result<()> {
       symbol: "final_call".to_string(),
       ..Default::default()
     },
+    service::ModuleConfig {
+      name: "/haskell".to_string(),
+      path: "./examples/haskell/build/lib.wasm".to_string(),
+      symbol: "on_request".to_string(),
+      ..Default::default()
+    },
   ];
 
   let node = node::Node::new_ref();

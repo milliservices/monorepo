@@ -1,0 +1,12 @@
+build: build-dir
+  wasm32-wasi-ghc lib.hs -o build/lib.wasm \
+    -no-hs-main \
+    -optl-mexec-model=reactor \
+    -optl-Wl,--export=on_request,--export=hs_init;
+
+build-dir:
+  mkdir -p build
+
+wasm:
+  wasm2wat build/lib.wasm | less
+

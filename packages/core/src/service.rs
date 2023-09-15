@@ -116,6 +116,13 @@ impl ServiceInstance {
     // Optional WASI module instantiation
     if let Ok(init_fn) = instance.get_typed_func::<(), ()>(&mut store, "_start") {
       init_fn.call_async(&mut store, ()).await?;
+    } else if let Ok(init_fn) = instance.get_typed_func::<(), ()>(&mut store, "_initialize") {
+      init_fn.call_async(&mut store, ()).await?;
+    }
+
+    // NOTE: Support for haskell's hs_init call
+    if let Ok(init_fn) = instance.get_typed_func::<(i32, i32), ()>(&mut store, "hs_init") {
+      init_fn.call_async(&mut store, (0, 0)).await?;
     }
 
     Ok(ServiceInstance {
