@@ -3,8 +3,8 @@ extern "C" {
   pub fn send_response(data_ptr: i32);
   pub fn get_metadata(key_ptr: i32) -> i32;
   pub fn set_response_metadata(key_ptr: i32, value_ptr: i32);
-  pub fn call_service(name_ptr: i32, data_ptr: i32) -> i32;
 
+  // Service
   pub fn service_new_request(ptr: i32) -> u32;
   pub fn service_execute(id: u32);
   pub fn service_write_data(id: u32, ptr: i32);

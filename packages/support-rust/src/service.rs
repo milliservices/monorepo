@@ -1,35 +1,70 @@
 use crate::internal;
 use crate::memory;
 
-pub struct ServiceRequest(u32);
+pub mod request {
+  use crate::internal;
+  use crate::memory;
 
-impl ServiceRequest {
+  pub fn get_metadata(key: &str) -> String {
+    let value_ptr = unsafe { internal::get_metadata(memory::write_to_memory(key.into())) };
+    memory::read_as_string(value_ptr).expect("Cant read value of key")
+  }
+}
+
+pub mod response {
+  use crate::internal;
+  use crate::memory;
+
+  pub fn send_data(data: Vec<u8>) {
+    let ptr = memory::write_to_memory(data);
+    unsafe { internal::send_response(ptr) }
+  }
+
+  pub fn send_string(data: &str) {
+    send_data(data.into())
+  }
+
+  pub fn set_metadata(key: &str, value: &str) {
+    let key_ptr = memory::write_to_memory(key.into());
+    let value_ptr = memory::write_to_memory(value.into());
+    unsafe { internal::set_response_metadata(key_ptr, value_ptr) }
+  }
+}
+
+pub struct ServiceCall {
+  id: u32,
+  pub response: ServiceResponse,
+}
+
+impl ServiceCall {
   pub fn new(key: &str) -> Self {
     unsafe {
       let id = internal::service_new_request(memory::write_to_memory(key.into()));
-      Self(id)
+      Self {
+        id,
+        response: ServiceResponse(id),
+      }
     }
   }
 
-  pub fn set_body(&self, data: Vec<u8>) {
-    unsafe { internal::service_write_data(self.0, memory::write_to_memory(data)) }
+  pub fn set_data(&self, data: Vec<u8>) {
+    unsafe { internal::service_write_data(self.id, memory::write_to_memory(data)) }
   }
 
   pub fn set_metadata(&self, key: &str, value: &str) {
     unsafe {
       internal::service_set_metadata(
-        self.0,
+        self.id,
         memory::write_to_memory(key.into()),
         memory::write_to_memory(value.into()),
       )
     }
   }
 
-  pub fn execute(&self) -> ServiceResponse {
+  pub fn execute(&self) {
     unsafe {
-      internal::service_execute(self.0);
+      internal::service_execute(self.id);
     }
-    ServiceResponse::new(self.0)
   }
 }
 
