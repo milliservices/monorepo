@@ -1,4 +1,4 @@
-use milliservices_utils::*;
+use milliservices_support::*;
 
 #[no_mangle]
 extern "C" fn simple_io(input_ptr: i32) {

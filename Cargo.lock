@@ -536,7 +536,7 @@ dependencies = [
 name = "example_rust_wasm"
 version = "0.0.0"
 dependencies = [
- "milliservices_utils",
+ "milliservices_support",
 ]
 
 [[package]]
@@ -1054,7 +1054,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "milliservices_utils"
+name = "milliservices_support"
 version = "0.1.0"
 
 [[package]]
@@ -1511,7 +1511,7 @@ dependencies = [
 name = "test_fixtures_module_1"
 version = "0.1.0"
 dependencies = [
- "milliservices_utils",
+ "milliservices_support",
 ]
 
 [[package]]

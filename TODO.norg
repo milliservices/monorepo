@@ -14,11 +14,11 @@
   - (x) Haskell example
   - ( ) Prefix import labels
   - ( ) Haskell library
-  - ( ) Refactor to using request builder for call_service
-  - ( ) Allow http requests from modules
+  - (x) Refactor to using request builder for call_service
   - ( ) CLI
   - ( ) milliservice.yaml
   - ( ) Security: Epoch based execution timeout
+  - ( ) Allow http requests from modules
 
 * Next
   - ( ) CLI layer
@@ -65,9 +65,8 @@
   - ( ) Ruby
 
 * Maybe
-  - ( ) Non-wasm runtime for js via deno_core?
+  - ( ) Non-wasm runtime for js via quickjs? (or deno_core)
   - ( ) Wasm builder for ts with WIT + deno_core | ts-morph + deno_core?
-  - ( ) Preloaded dynamically linked modules (to reduce wasm bundle size)?
   - ( ) Keep an eye on wasm component model?
 
 * Shitpile

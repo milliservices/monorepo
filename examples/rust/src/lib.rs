@@ -1,4 +1,4 @@
-use milliservices_utils::*;
+use milliservices_support::*;
 
 #[no_mangle]
 extern "C" fn on_request(input_ptr: i32) {

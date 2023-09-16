@@ -5,6 +5,6 @@
   "devDependencies": {
     "@assemblyscript/wasi-shim": "^0.1.0",
     "assemblyscript": "^0.27.9",
-    "@milliservices/assemblyscript": "file://../../packages/assemblyscript"
+    "@milliservices/assemblyscript": "file://../../packages/support-assemblyscript"
   }
 }
