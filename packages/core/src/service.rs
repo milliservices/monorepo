@@ -64,6 +64,36 @@ impl ServiceModule {
         Box::new(imports::call_service(caller, name_ptr, data_ptr))
       },
     )?;
+    linker.func_wrap(
+      &cfg.host_module_name,
+      "service_new_request",
+      imports::service_new_request,
+    )?;
+    linker.func_wrap(
+      &cfg.host_module_name,
+      "service_write_data",
+      imports::service_write_data,
+    )?;
+    linker.func_wrap(
+      &cfg.host_module_name,
+      "service_get_response",
+      imports::service_get_response,
+    )?;
+    linker.func_wrap(
+      &cfg.host_module_name,
+      "service_set_metadata",
+      imports::service_set_metadata,
+    )?;
+    linker.func_wrap(
+      &cfg.host_module_name,
+      "service_get_response_metadata",
+      imports::service_get_response_metadata,
+    )?;
+    linker.func_wrap1_async(
+      &cfg.host_module_name,
+      "service_execute",
+      |caller, req_id: u32| Box::new(imports::service_execute(caller, req_id)),
+    )?;
 
     let instance_pre = linker.instantiate_pre(&module)?;
 
@@ -99,6 +129,8 @@ impl ServiceInstance {
         response_data: Vec::new(),
         pointer_offset: 1,
         handle_call_service: None,
+        requests: HashMap::new(),
+        request_count: 0,
       },
     );
 

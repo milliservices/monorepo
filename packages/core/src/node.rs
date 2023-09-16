@@ -72,10 +72,12 @@ pub fn spawn_instance(
           let mut instance = spawn_instance(Arc::clone(&node_ref_cb), msg.name.to_owned())
             .await?
             .ok_or(Error::msg(format!("Module not found: {}", msg.name)))?;
+          instance.update_metadata(msg.metadata);
           instance.invoke(msg.data).await?;
 
           Ok(RecvMsg {
             data: instance.get_response_data().to_owned(),
+            metadata: instance.get_response_metadata().to_owned(),
           })
         })
       });

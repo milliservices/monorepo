@@ -3,14 +3,18 @@ use std::{collections::HashMap, mem::size_of, sync::Arc};
 use wasmtime::{Memory, StoreContext, StoreContextMut};
 use wasmtime_wasi::WasiCtx;
 
-#[derive(Debug, Clone)]
+type Metadata = HashMap<String, String>;
+
+#[derive(Debug, Clone, Default)]
 pub struct SendMsg {
   pub name: String,
+  pub metadata: Metadata,
   pub data: Vec<u8>,
 }
 #[derive(Debug, Clone)]
 pub struct RecvMsg {
   pub data: Vec<u8>,
+  pub metadata: Metadata,
 }
 
 pub type HandleCallService = Arc<
@@ -28,13 +32,25 @@ pub type HandleCallService = Arc<
     >,
 >;
 
+#[derive(Debug, Default)]
+pub struct ServiceRequest {
+  pub name: String,
+  pub data: Vec<u8>,
+  pub metadata: Metadata,
+  pub executed: bool,
+  pub response_data: Vec<u8>,
+  pub response_metadata: Metadata,
+}
+
 pub struct ServiceStore {
-  pub metadata: HashMap<String, String>,
+  pub metadata: Metadata,
   pub pointer_offset: u32,
   pub response_data: Vec<u8>,
-  pub response_metadata: HashMap<String, String>,
+  pub response_metadata: Metadata,
   pub wasi_ctx: WasiCtx,
   pub handle_call_service: Option<HandleCallService>,
+  pub requests: HashMap<u32, ServiceRequest>,
+  pub request_count: u32,
 }
 
 impl ServiceStore {

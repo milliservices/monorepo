@@ -52,10 +52,10 @@ writeToMemory buffer = do
         pure ptr
     )
 
-foreign export ccall onRequest :: Ptr SizedPtrData -> IO ()
-
 ptrToInt :: Ptr a -> Int32
 ptrToInt = fromIntegral . ptrToIntPtr
+
+foreign export ccall onRequest :: Ptr SizedPtrData -> IO ()
 
 onRequest ptr = do
   bytes <- readFromMemory ptr

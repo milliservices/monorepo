@@ -11,7 +11,7 @@
   - (x) Network layer
   - (x) Network layer metadata
   - (x) Network library
-  - ( ) Haskell example
+  - (x) Haskell example
   - ( ) Prefix import labels
   - ( ) Haskell library
   - ( ) Refactor to using request builder for call_service

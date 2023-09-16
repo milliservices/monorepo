@@ -1,4 +1,4 @@
-use crate::store::{SendMsg, ServiceStore};
+use crate::store::{SendMsg, ServiceRequest, ServiceStore};
 use wasmtime::*;
 
 fn get_memory(caller: &mut Caller<'_, ServiceStore>) -> Result<Memory> {
@@ -21,7 +21,12 @@ pub async fn call_service(
 
   let handler = caller.data_mut().handle_call_service.as_ref();
   if let Some(handler) = handler {
-    let response = handler(SendMsg { name, data }).await?;
+    let response = handler(SendMsg {
+      name,
+      data,
+      ..Default::default()
+    })
+    .await?;
     let resp_ptr =
       ServiceStore::write_to_memory(&mut caller.as_context_mut(), memory, response.data)?;
     Ok(resp_ptr)
@@ -67,4 +72,101 @@ pub fn get_metadata(mut caller: Caller<'_, ServiceStore>, ptr: i32) -> Result<i3
   let value_ptr = ServiceStore::write_to_memory(&mut caller.as_context_mut(), memory, value)?;
 
   Ok(value_ptr)
+}
+
+pub fn service_new_request(mut caller: Caller<'_, ServiceStore>, key_ptr: i32) -> Result<u32> {
+  let memory = get_memory(&mut caller)?;
+  let name = ServiceStore::read_string_from_memory(&caller.as_context(), memory, key_ptr)?;
+
+  let req = ServiceRequest {
+    name,
+    ..Default::default()
+  };
+
+  let data = caller.data_mut();
+  data.request_count += 1;
+  data.requests.insert(data.request_count, req);
+
+  Ok(data.request_count)
+}
+
+pub fn service_write_data(
+  mut caller: Caller<'_, ServiceStore>,
+  req_id: u32,
+  data_ptr: i32,
+) -> Result<()> {
+  let memory = get_memory(&mut caller)?;
+  let data = ServiceStore::read_from_memory(&caller.as_context(), memory, data_ptr)?;
+  let store_data = caller.data_mut();
+  if let Some(req) = store_data.requests.get_mut(&req_id) {
+    req.data = data;
+  }
+  Ok(())
+}
+
+pub fn service_get_response(mut caller: Caller<'_, ServiceStore>, req_id: u32) -> Result<i32> {
+  let memory = get_memory(&mut caller)?;
+  let req = caller
+    .data()
+    .requests
+    .get(&req_id)
+    .ok_or(Error::msg("Request doesn't exist"))?
+    .response_data
+    .to_owned();
+  let ptr = ServiceStore::write_to_memory(&mut caller.as_context_mut(), memory, req)?;
+  Ok(ptr)
+}
+
+pub fn service_set_metadata(
+  mut caller: Caller<'_, ServiceStore>,
+  req_id: u32,
+  key_ptr: i32,
+  data_ptr: i32,
+) -> Result<()> {
+  let memory = get_memory(&mut caller)?;
+  let key = ServiceStore::read_string_from_memory(&caller.as_context(), memory, key_ptr)?;
+  let data = ServiceStore::read_string_from_memory(&caller.as_context(), memory, data_ptr)?;
+  if let Some(req) = caller.data_mut().requests.get_mut(&req_id) {
+    req.metadata.insert(key, data);
+  }
+  Ok(())
+}
+
+pub fn service_get_response_metadata(
+  mut caller: Caller<'_, ServiceStore>,
+  req_id: u32,
+  key_ptr: i32,
+) -> Result<i32> {
+  let memory = get_memory(&mut caller)?;
+  let key = ServiceStore::read_string_from_memory(&caller.as_context(), memory, key_ptr)?;
+  let req = caller
+    .data()
+    .requests
+    .get(&req_id)
+    .ok_or(Error::msg("Request doesn't exist"))?
+    .response_metadata
+    .get(&key)
+    .map_or("".to_string(), |s| s.to_owned());
+  let ptr = ServiceStore::write_to_memory(&mut caller.as_context_mut(), memory, req.into())?;
+  Ok(ptr)
+}
+pub async fn service_execute(mut caller: Caller<'_, ServiceStore>, req_id: u32) -> Result<()> {
+  let data = caller.data_mut();
+
+  if let Some(req) = data.requests.get_mut(&req_id) {
+    req.executed = true;
+
+    if let Some(handle) = data.handle_call_service.as_ref() {
+      let response = handle(SendMsg {
+        name: req.name.to_owned(),
+        metadata: req.metadata.to_owned(),
+        data: req.data.to_owned(),
+      })
+      .await?;
+      req.response_metadata = response.metadata;
+      req.response_data = response.data;
+    }
+  }
+
+  Ok(())
 }

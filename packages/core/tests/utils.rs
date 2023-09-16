@@ -14,7 +14,8 @@ pub async fn get_module_instance(cfg: ModuleConfig) -> (ServiceInstance, NodeRef
 
   let instance = node::spawn_instance(Arc::clone(&node), "test-module".to_string())
     .await
-    .expect("instance");
+    .expect("instance")
+    .expect("aaa instance");
 
   (instance, node)
 }
