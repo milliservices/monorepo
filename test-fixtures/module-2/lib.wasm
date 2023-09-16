@@ -14,7 +14,7 @@
  (import "wasi_snapshot_preview1" "fd_write" (func $~lib/bindings/wasi_snapshot_preview1/fd_write (param i32 i32 i32 i32) (result i32)))
  (import "wasi_snapshot_preview1" "proc_exit" (func $~lib/bindings/wasi_snapshot_preview1/proc_exit (param i32)))
  (import "milliservices_v1" "send_response" (func $~lib/@milliservices/assemblyscript/assembly/milliservices_v1/send_response (param i32)))
- (global $~lib/@milliservices/assemblyscript/assembly/index/current_pointer_offset (mut i32) (i32.const 16))
+ (global $~lib/@milliservices/assemblyscript/assembly/memory/current_pointer_offset (mut i32) (i32.const 16))
  (global $~lib/shared/runtime/Runtime.Stub i32 (i32.const 0))
  (global $~lib/shared/runtime/Runtime.Minimal i32 (i32.const 1))
  (global $~lib/shared/runtime/Runtime.Incremental i32 (i32.const 2))
@@ -3680,7 +3680,7 @@
   i32.add
   global.set $~lib/memory/__stack_pointer
  )
- (func $~lib/@milliservices/assemblyscript/assembly/index/readFromMemory (param $0 i32) (result i32)
+ (func $~lib/@milliservices/assemblyscript/assembly/memory/readFromMemory (param $0 i32) (result i32)
   (local $1 i32)
   (local $2 i32)
   (local $3 i32)
@@ -3777,7 +3777,7 @@
   local.get $2
   return
  )
- (func $~lib/@milliservices/assemblyscript/assembly/index/readAsString (param $0 i32) (result i32)
+ (func $~lib/@milliservices/assemblyscript/assembly/memory/readAsString (param $0 i32) (result i32)
   (local $1 i32)
   (local $2 i32)
   global.get $~lib/memory/__stack_pointer
@@ -3790,7 +3790,7 @@
   i64.store $0
   global.get $~lib/memory/__stack_pointer
   local.get $0
-  call $~lib/@milliservices/assemblyscript/assembly/index/readFromMemory
+  call $~lib/@milliservices/assemblyscript/assembly/memory/readFromMemory
   local.tee $1
   i32.store $0
   local.get $1
@@ -4186,7 +4186,7 @@
   local.get $2
   return
  )
- (func $~lib/@milliservices/assemblyscript/assembly/index/writeToMemory (param $0 i32) (result i32)
+ (func $~lib/@milliservices/assemblyscript/assembly/memory/writeToMemory (param $0 i32) (result i32)
   (local $1 i32)
   (local $2 i32)
   (local $3 i32)
@@ -4215,7 +4215,7 @@
   call $~lib/dataview/DataView#constructor@varargs
   local.tee $1
   i32.store $0 offset=4
-  global.get $~lib/@milliservices/assemblyscript/assembly/index/current_pointer_offset
+  global.get $~lib/@milliservices/assemblyscript/assembly/memory/current_pointer_offset
   local.set $2
   local.get $2
   local.get $0
@@ -4232,7 +4232,7 @@
   i32.add
   i32.const 4
   i32.add
-  global.set $~lib/@milliservices/assemblyscript/assembly/index/current_pointer_offset
+  global.set $~lib/@milliservices/assemblyscript/assembly/memory/current_pointer_offset
   i32.const 0
   local.set $4
   loop $for-loop|0
@@ -4288,9 +4288,8 @@
   local.get $5
   return
  )
- (func $~lib/@milliservices/assemblyscript/assembly/index/sendResponse (param $0 i32)
+ (func $~lib/@milliservices/assemblyscript/assembly/service/response.sendData (param $0 i32)
   (local $1 i32)
-  (local $2 i32)
   global.get $~lib/memory/__stack_pointer
   i32.const 4
   i32.sub
@@ -4300,21 +4299,19 @@
   i32.const 0
   i32.store $0
   local.get $0
-  local.set $2
-  global.get $~lib/memory/__stack_pointer
-  local.get $2
-  i32.store $0
-  local.get $2
-  call $~lib/@milliservices/assemblyscript/assembly/index/writeToMemory
   local.set $1
+  global.get $~lib/memory/__stack_pointer
   local.get $1
+  i32.store $0
+  local.get $1
+  call $~lib/@milliservices/assemblyscript/assembly/memory/writeToMemory
   call $~lib/@milliservices/assemblyscript/assembly/milliservices_v1/send_response
   global.get $~lib/memory/__stack_pointer
   i32.const 4
   i32.add
   global.set $~lib/memory/__stack_pointer
  )
- (func $~lib/@milliservices/assemblyscript/assembly/index/sendStringResponse (param $0 i32)
+ (func $~lib/@milliservices/assemblyscript/assembly/service/response.sendString (param $0 i32)
   (local $1 i32)
   global.get $~lib/memory/__stack_pointer
   i32.const 8
@@ -4340,7 +4337,7 @@
   local.get $1
   i32.store $0
   local.get $1
-  call $~lib/@milliservices/assemblyscript/assembly/index/sendResponse
+  call $~lib/@milliservices/assemblyscript/assembly/service/response.sendData
   global.get $~lib/memory/__stack_pointer
   i32.const 8
   i32.add
@@ -4362,7 +4359,7 @@
   i64.store $0 offset=8
   global.get $~lib/memory/__stack_pointer
   local.get $0
-  call $~lib/@milliservices/assemblyscript/assembly/index/readAsString
+  call $~lib/@milliservices/assemblyscript/assembly/memory/readAsString
   local.tee $1
   i32.store $0
   local.get $1
@@ -4383,7 +4380,7 @@
   local.get $2
   i32.store $0 offset=4
   local.get $2
-  call $~lib/@milliservices/assemblyscript/assembly/index/sendStringResponse
+  call $~lib/@milliservices/assemblyscript/assembly/service/response.sendString
   global.get $~lib/memory/__stack_pointer
   i32.const 16
   i32.add
@@ -4523,7 +4520,7 @@
   memory.fill $0
   global.get $~lib/memory/__stack_pointer
   local.get $0
-  call $~lib/@milliservices/assemblyscript/assembly/index/readFromMemory
+  call $~lib/@milliservices/assemblyscript/assembly/memory/readFromMemory
   local.tee $1
   i32.store $0
   global.get $~lib/memory/__stack_pointer
@@ -4604,7 +4601,7 @@
   local.get $7
   i32.store $0 offset=4
   local.get $7
-  call $~lib/@milliservices/assemblyscript/assembly/index/sendResponse
+  call $~lib/@milliservices/assemblyscript/assembly/service/response.sendData
   global.get $~lib/memory/__stack_pointer
   i32.const 20
   i32.add

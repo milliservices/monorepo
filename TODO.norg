@@ -13,10 +13,14 @@
   - (x) Network library
   - (x) Haskell example
   - (x) Prefix import labels
-  - ( ) Haskell library
   - (x) Refactor to using request builder for call_service
+  - ( ) Move wasm initialization to a separate method
+  - ( ) milliservices.yaml
+  - ( ) tests for cross-service calls
+  - ( ) Json example
+  - ( ) Benchmark rps. Compare with nodejs. Compare with raw hyper
+  - ( ) Haskell library
   - ( ) CLI
-  - ( ) milliservice.yaml
   - ( ) Security: Epoch based execution timeout
   - ( ) Allow http requests from modules
 

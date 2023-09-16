@@ -1,14 +1,14 @@
 import { readAsString, readFromMemory, writeToMemory } from './memory';
 import * as internal from './milliservices_v1'
 
-export class request {
+@final export class request {
   static metadata(key: string): string {
     const ptr = internal.get_metadata(writeToMemory(String.UTF8.encode(key)));
     return readAsString(ptr);
   }
 }
 
-export class response {
+@final export class response {
   static metadata(key: string, value: string): void {
     const key_ptr = writeToMemory(String.UTF8.encode(key));
     const value_ptr = writeToMemory(String.UTF8.encode(value));
@@ -24,7 +24,7 @@ export class response {
   }
 }
 
-export class ServiceCall {
+@final export class ServiceCall {
   private id: u32;
   public response: ServiceResponse;
 
@@ -50,7 +50,7 @@ export class ServiceCall {
   }
 }
 
-class ServiceResponse {
+@final class ServiceResponse {
   private id: u32;
 
   constructor(id: u32) {

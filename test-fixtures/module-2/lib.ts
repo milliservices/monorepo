@@ -1,8 +1,9 @@
-import { readAsString, readFromMemory, sendResponse, sendStringResponse } from '@milliservices/assemblyscript/assembly'
+import { readAsString, readFromMemory } from '@milliservices/assemblyscript/assembly'
+import { response } from '@milliservices/assemblyscript/assembly/service'
 
 export function simple_io(input_ptr: i32): void {
   const data = readAsString(input_ptr);
-  sendStringResponse(`${data}. adds output data`)
+  response.sendString(`${data}. adds output data`)
 }
 
 export function simple_calculations(input_ptr: i32): void {
@@ -14,5 +15,5 @@ export function simple_calculations(input_ptr: i32): void {
 
   const resultView = new DataView(new ArrayBuffer(4));
   resultView.setInt32(0, result);
-  sendResponse(resultView.buffer)
+  response.sendData(resultView.buffer)
 }
