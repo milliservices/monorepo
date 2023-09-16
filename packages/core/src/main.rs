@@ -54,7 +54,7 @@ async fn run_instance_test(node_ref: Arc<Mutex<node::Node>>, name: String) -> Re
   instance.update_metadata(HashMap::from([
     ("@method".to_string(), "POST".to_string()),
     ("@path".to_string(), "/some/path".to_string()),
-    ("X-Authentication".to_string(), "some auth key".to_string()),
+    ("authentication".to_string(), "some auth key".to_string()),
   ]));
   instance.invoke("Request data incoming".into()).await?;
 
