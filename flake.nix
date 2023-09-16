@@ -49,6 +49,9 @@
             assemblyscript
             go
             ghc-wasm-meta.packages.${system}.wasm32-wasi-ghc-gmp
+            haskell-language-server
+            cabal-install
+            ghc
           ];
           nativeBuildInputs = [ clang ];
 

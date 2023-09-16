@@ -11,25 +11,27 @@
   - (x) Network layer
   - (x) Network layer metadata
   - (x) Network library
+  - ( ) Haskell example
   - ( ) Prefix import labels
-  - ( ) Refactor to using request builder for `call_service`
-  - ( ) Allow http calls from modules
+  - ( ) Haskell library
+  - ( ) Refactor to using request builder for call_service
+  - ( ) Allow http requests from modules
   - ( ) CLI
   - ( ) milliservice.yaml
-  - ( ) Epoch based execution timeout
+  - ( ) Security: Epoch based execution timeout
 
 * Next
+  - ( ) CLI layer
   - ( ) Share pointer offset with module?
-  - ( ) CPython | Haskell example
   - ( ) Lib: rust (proc macro)
   - ( ) Benchmarking
-  - ( ) :[file-for-io]{_}: Data in/out from file/named pipe instead?
+  - ( ) :[streaming-io]{_}: Streaming request and response
   - ( ) error handling
-  - ( ) CGI-ish interface via stdin/stdout for targets that don't have exports? (fixes [file-for-io])
+  - ( ) CGI-ish interface via stdin/stdout for targets that don't have exports? (fixes [streaming-io])
 
 * Later
   - ( ) Environment labels - production/development
-  - ( ) Streaming request and response (solved if using [file-for-io])
+  - ( ) File for IO (fixes [streaming-io])
   - ( ) Versioning
   - ( ) Forward env variables
   - ( ) Scoped fs access
@@ -49,7 +51,7 @@
   - ( ) JS (Javy)?
   - ( ) CPython | RustPython
   - ( ) C/C++
-  - ( ) Haskell
+  - (x) Haskell
   - ( ) Go
   - ( ) Ocaml
   - ( ) C#

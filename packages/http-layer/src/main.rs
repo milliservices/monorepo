@@ -25,7 +25,7 @@ async fn main() -> anyhow::Result<()> {
     service::ModuleConfig {
       name: "/haskell".to_string(),
       path: "./examples/haskell/build/lib.wasm".to_string(),
-      symbol: "on_request".to_string(),
+      symbol: "onRequest".to_string(),
       ..Default::default()
     },
   ];

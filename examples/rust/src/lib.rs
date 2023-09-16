@@ -29,8 +29,8 @@ extern "C" fn on_request(input_ptr: i32) {
     println!(":: [RUST] call response = {}", data);
 
     let res = call_service(
-      write_to_memory("/ass".into()),
-      write_to_memory("Another piece of ass data".into()),
+      write_to_memory("/haskell".into()),
+      write_to_memory("Haskell data".into()),
     );
     let data_buf = read_from_memory(res);
     let data = String::from_utf8_lossy(data_buf.as_slice());

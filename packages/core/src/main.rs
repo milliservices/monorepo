@@ -6,29 +6,35 @@ use std::{collections::HashMap, sync::Arc};
 use tokio::sync::Mutex;
 
 use milliservices_core::node;
-use milliservices_core::service::ModuleConfig;
+use milliservices_core::service;
 
 #[tokio::main]
 async fn main() -> Result<()> {
   let node_ref = node::Node::new_ref();
 
   let module_configs = vec![
-    ModuleConfig {
-      name: "rust".to_string(),
+    service::ModuleConfig {
+      name: "/rust".to_string(),
       path: "./target/wasm32-wasi/debug/example_rust_wasm.wasm".to_string(),
       symbol: "on_request".to_string(),
       ..Default::default()
     },
-    ModuleConfig {
-      name: "ass".to_string(),
+    service::ModuleConfig {
+      name: "/ass".to_string(),
       path: "./examples/assemblyscript/build/debug.wasm".to_string(),
       symbol: "on_request".to_string(),
       ..Default::default()
     },
-    ModuleConfig {
-      name: "rust-final".to_string(),
+    service::ModuleConfig {
+      name: "/rust-final".to_string(),
       path: "./target/wasm32-wasi/debug/example_rust_wasm.wasm".to_string(),
       symbol: "final_call".to_string(),
+      ..Default::default()
+    },
+    service::ModuleConfig {
+      name: "/haskell".to_string(),
+      path: "./examples/haskell/build/lib.wasm".to_string(),
+      symbol: "onRequest".to_string(),
       ..Default::default()
     },
   ];
@@ -38,7 +44,7 @@ async fn main() -> Result<()> {
   }
 
   let debug_start_time = std::time::Instant::now();
-  run_instance_test(node_ref, "rust".to_string()).await?;
+  run_instance_test(node_ref, "/rust".to_string()).await?;
   dbg!(debug_start_time.elapsed());
 
   Ok(())
