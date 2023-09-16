@@ -1,5 +1,6 @@
 use std::mem::size_of;
 
+#[link(wasm_import_module = "milliservices_v1")]
 extern "C" {
   pub fn send_response(data_ptr: i32);
   pub fn get_metadata(key_ptr: i32) -> i32;

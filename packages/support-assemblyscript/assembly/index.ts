@@ -1,4 +1,4 @@
-import * as imports from './env'
+import * as imports from './milliservices_v1'
 
 export function callService(name: string, data: ArrayBuffer): ArrayBuffer {
   const ptr = imports.call_service(

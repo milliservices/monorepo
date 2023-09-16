@@ -12,7 +12,6 @@ pub struct ModuleConfig {
   pub path: String,
   pub symbol: String,
   pub name: String,
-  pub host_module_name: String,
 }
 
 impl Default for ModuleConfig {
@@ -21,7 +20,6 @@ impl Default for ModuleConfig {
       path: "".to_string(),
       symbol: "on_request".to_string(),
       name: "".to_string(), // TODO: auto generate uuid?
-      host_module_name: "env".to_string(),
     }
   }
 }
@@ -46,51 +44,50 @@ impl ServiceModule {
     let mut linker: Linker<ServiceStore> = Linker::new(&engine);
     wasmtime_wasi::add_to_linker(&mut linker, |store: &mut ServiceStore| &mut store.wasi_ctx)?;
 
+    let host_module_name = "milliservices_v1";
+
+    linker.func_wrap(host_module_name, "send_response", imports::send_response)?;
+    linker.func_wrap(host_module_name, "get_metadata", imports::get_metadata)?;
     linker.func_wrap(
-      &cfg.host_module_name,
-      "send_response",
-      imports::send_response,
-    )?;
-    linker.func_wrap(&cfg.host_module_name, "get_metadata", imports::get_metadata)?;
-    linker.func_wrap(
-      &cfg.host_module_name,
+      host_module_name,
       "set_response_metadata",
       imports::set_response_metadata,
     )?;
     linker.func_wrap2_async(
-      &cfg.host_module_name,
+      host_module_name,
       "call_service",
       |caller, name_ptr: i32, data_ptr: i32| {
         Box::new(imports::call_service(caller, name_ptr, data_ptr))
       },
     )?;
+
     linker.func_wrap(
-      &cfg.host_module_name,
+      host_module_name,
       "service_new_request",
       imports::service_new_request,
     )?;
     linker.func_wrap(
-      &cfg.host_module_name,
+      host_module_name,
       "service_write_data",
       imports::service_write_data,
     )?;
     linker.func_wrap(
-      &cfg.host_module_name,
+      host_module_name,
       "service_get_response",
       imports::service_get_response,
     )?;
     linker.func_wrap(
-      &cfg.host_module_name,
+      host_module_name,
       "service_set_metadata",
       imports::service_set_metadata,
     )?;
     linker.func_wrap(
-      &cfg.host_module_name,
+      host_module_name,
       "service_get_response_metadata",
       imports::service_get_response_metadata,
     )?;
     linker.func_wrap1_async(
-      &cfg.host_module_name,
+      host_module_name,
       "service_execute",
       |caller, req_id: u32| Box::new(imports::service_execute(caller, req_id)),
     )?;
