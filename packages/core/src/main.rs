@@ -17,25 +17,21 @@ async fn main() -> Result<()> {
       name: "/rust".to_string(),
       path: "./target/wasm32-wasi/debug/example_rust_wasm.wasm".to_string(),
       symbol: "on_request".to_string(),
-      ..Default::default()
     },
     service::ModuleConfig {
       name: "/ass".to_string(),
       path: "./examples/assemblyscript/build/debug.wasm".to_string(),
       symbol: "on_request".to_string(),
-      ..Default::default()
     },
     service::ModuleConfig {
       name: "/rust-final".to_string(),
       path: "./target/wasm32-wasi/debug/example_rust_wasm.wasm".to_string(),
       symbol: "final_call".to_string(),
-      ..Default::default()
     },
     service::ModuleConfig {
       name: "/haskell".to_string(),
       path: "./examples/haskell/build/lib.wasm".to_string(),
       symbol: "onRequest".to_string(),
-      ..Default::default()
     },
   ];
 

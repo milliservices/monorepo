@@ -20,15 +20,14 @@ extern "C" fn on_request(input_ptr: i32) {
     let value_ptr = write_to_memory("milliservices_rust".into());
     set_response_metadata(key_ptr, value_ptr);
 
-    let request = ServiceRequest::new("/rust-final");
+    let request = service::ServiceRequest::new("/rust-final");
     request.set_body("sdfhsdkfjhsdfsdf".into());
     request.set_metadata("authentication", "foobario");
-    let response = request.run();
-    let metadata = request.get_response_metadata("Server");
+    let response = request.execute();
     println!(
-      ":: [RUST] call response = {:?} {:?}",
-      metadata,
-      String::from_utf8_lossy(&response)
+      ":: [RUST] call response = Server: {}; {}",
+      response.metadata("Server"),
+      String::from_utf8_lossy(&response.data())
     );
 
     // let res = call_service(
