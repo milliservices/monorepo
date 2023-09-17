@@ -60,6 +60,8 @@ async fn run_instance_test(node_ref: Arc<Mutex<node::Node>>, name: String) -> Re
     ("@path".to_string(), "/some/path".to_string()),
     ("authentication".to_string(), "some auth key".to_string()),
   ]));
+
+  instance.initialize().await?;
   instance.invoke("Request data incoming".into()).await?;
 
   dbg!(instance.get_response_metadata());

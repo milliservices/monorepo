@@ -157,6 +157,22 @@ impl ServiceInstance {
       .await?;
     dbg!(memory.size(&mut store));
 
+    Ok(ServiceInstance {
+      request_handler_name: request_handler_name.to_string(),
+      instance,
+      store,
+    })
+  }
+
+  pub async fn set_call_service_handler(&mut self, cb: HandleCallService) {
+    let data = self.store.data_mut();
+    data.handle_call_service = Some(cb);
+  }
+
+  pub async fn initialize(&mut self) -> Result<()> {
+    let instance = &self.instance;
+    let mut store = &mut self.store;
+
     // WASI module instantiation
     if let Ok(init_fn) = instance.get_typed_func::<(), ()>(&mut store, "_start") {
       init_fn.call_async(&mut store, ()).await?;
@@ -169,16 +185,7 @@ impl ServiceInstance {
       init_fn.call_async(&mut store, (0, 0)).await?;
     }
 
-    Ok(ServiceInstance {
-      request_handler_name: request_handler_name.to_string(),
-      instance,
-      store,
-    })
-  }
-
-  pub async fn set_call_service_handler(&mut self, cb: HandleCallService) {
-    let data = self.store.data_mut();
-    data.handle_call_service = Some(cb);
+    Ok(())
   }
 
   pub async fn invoke(&mut self, data: Vec<u8>) -> Result<()> {

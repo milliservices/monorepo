@@ -73,6 +73,8 @@ pub fn spawn_instance(
             .await?
             .ok_or(Error::msg(format!("Module not found: {}", msg.name)))?;
           instance.update_metadata(msg.metadata);
+
+          instance.initialize().await?;
           instance.invoke(msg.data).await?;
 
           Ok(RecvMsg {

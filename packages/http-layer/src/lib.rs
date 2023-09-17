@@ -70,6 +70,7 @@ impl Service<Request<hyper::body::Body>> for HttpLayerService {
       let instance = node::spawn_instance(node, module_name).await?;
       if let Some(mut instance) = instance {
         instance.update_metadata(metadata);
+        instance.initialize().await?;
         instance.invoke(data.into()).await?;
 
         let mut builder = Response::builder().status(StatusCode::OK);

@@ -12,6 +12,8 @@ async fn module_1_simple_io() {
   })
   .await;
 
+  instance.initialize().await.expect("init failed");
+
   instance
     .invoke("Giving input".into())
     .await
