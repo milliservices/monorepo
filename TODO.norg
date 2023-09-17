@@ -14,6 +14,7 @@
   - (x) Haskell example
   - (x) Prefix import labels
   - (x) Refactor to using request builder for call_service
+  - ( ) Memory size in module config
   - ( ) Move wasm initialization to a separate method
   - ( ) milliservices.yaml
   - ( ) tests for cross-service calls

@@ -8,10 +8,22 @@ use crate::imports;
 use crate::store::{HandleCallService, ServiceStore};
 
 #[derive(Debug, Clone)]
+pub struct ModuleSystem {
+  pub memory_pages: u32,
+}
+
+impl Default for ModuleSystem {
+  fn default() -> Self {
+    Self { memory_pages: 100 }
+  }
+}
+
+#[derive(Debug, Clone)]
 pub struct ModuleConfig {
   pub path: String,
   pub symbol: String,
   pub name: String,
+  pub system: ModuleSystem,
 }
 
 impl Default for ModuleConfig {
@@ -20,6 +32,7 @@ impl Default for ModuleConfig {
       path: "".to_string(),
       symbol: "on_request".to_string(),
       name: "".to_string(), // TODO: auto generate uuid?
+      system: ModuleSystem::default(),
     }
   }
 }
@@ -139,10 +152,12 @@ impl ServiceInstance {
     let memory = instance
       .get_memory(&mut store, "memory")
       .ok_or(Error::msg("No memory of anything"))?;
-    // memory.grow_async(&mut store, 100).await?;
+    memory
+      .grow_async(&mut store, service.config.system.memory_pages as u64)
+      .await?;
     dbg!(memory.size(&mut store));
 
-    // Optional WASI module instantiation
+    // WASI module instantiation
     if let Ok(init_fn) = instance.get_typed_func::<(), ()>(&mut store, "_start") {
       init_fn.call_async(&mut store, ()).await?;
     } else if let Ok(init_fn) = instance.get_typed_func::<(), ()>(&mut store, "_initialize") {
