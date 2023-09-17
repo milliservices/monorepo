@@ -1,13 +1,21 @@
 run: build-examples
   cargo run --package milliservices_core
-  # cargo run --package milliservices_http_layer
+
+http: build-examples
+  cargo run --package milliservices_http_layer;
 
 build: build-examples
   echo -e "\n:::::::::: building core ::::::::::\n";
   cargo build
 
+mem p:
+  grep -E '^Vm(Peak|Size)' /proc/{{p}}/status
+
 test: build-fixtures
   cargo test --test='test*'
+
+bench:
+  wrk -t16 -c100 -d30 http://localhost:3000/rust-final -s wrk.lua
 
 build-examples:
   #!/usr/bin/env sh

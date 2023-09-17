@@ -42,16 +42,19 @@
         mkShell rec {
           buildInputs = [
             rust
+            assemblyscript
+            ghc-wasm-meta.packages.${system}.wasm32-wasi-ghc-gmp
+            ghc
+            go
+
+            cabal-install
             rust-analyzer-unwrapped
+            haskell-language-server
+
             just
             cargo-watch
             wabt
-            assemblyscript
-            go
-            ghc-wasm-meta.packages.${system}.wasm32-wasi-ghc-gmp
-            haskell-language-server
-            cabal-install
-            ghc
+            wrk
           ];
           nativeBuildInputs = [ clang ];
 
